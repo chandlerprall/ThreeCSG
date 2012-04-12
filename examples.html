@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script type="text/javascript" src="http://chandler.prallfamily.com/threebuilds/builds/r48/ThreeDebug.js"></script>
+<script type="text/javascript" src="ThreeCSG.js"></script>
+
+<script type="text/javascript">
+var renderer, scene, camera;
+
+window.onload = function() {
+	
+	renderer = new THREE.WebGLRenderer({antialias: false});
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.getElementById('viewport').appendChild(renderer.domElement);
+	
+	scene = new THREE.Scene();
+	
+	camera = new THREE.PerspectiveCamera(
+		35,
+		window.innerWidth / window.innerHeight,
+		1,
+		1000
+	);
+	camera.position.set(15, 15, 35);
+	camera.lookAt(scene.position);
+	scene.add(camera);
+	
+	var obj_1, obj_2;
+	
+	
+	/*
+	 * Example #1
+	 */
+	obj_1 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	
+	obj_2 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	obj_2.position.set(1, 1, 1);
+	
+	obj_1.subtract( obj_2 );
+	scene.add( obj_1 );
+	obj_1.position.x = -20;
+	
+	
+	/*
+	 * Example #2
+	 */
+	obj_1 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	
+	obj_2 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	obj_2.position.set(1, 1, 1);
+	obj_2.rotation.y = Math.PI / 4;
+	
+	obj_1.subtract( obj_2 );
+	scene.add( obj_1 );
+	obj_1.position.x = -10;
+	
+	
+	/*
+	 * Example #3
+	 */
+	obj_1 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	obj_1.rotation.y = Math.PI / 4;
+	
+	obj_2 = new THREE.Mesh(
+		new THREE.SphereGeometry(2, 12, 12),
+		new THREE.MeshNormalMaterial
+	);
+	obj_2.position.set(.5, .5, .5);
+	
+	obj_2.intersect( obj_1 );
+	scene.add( obj_2 );
+	
+	
+	/*
+	 * Example #4
+	 */
+	obj_1 = new THREE.Mesh(
+		new THREE.CubeGeometry(3, 3, 3),
+		new THREE.MeshNormalMaterial
+	);
+	
+	obj_2 = new THREE.Mesh(
+		new THREE.SphereGeometry(1, 8, 8),
+		new THREE.MeshNormalMaterial
+	);
+	obj_2.position.set(1.5, 1.5, 1.5);
+	
+	obj_2.union( obj_1 );
+	scene.add( obj_2 );
+	obj_2.position.x = 10;
+	
+	
+	renderer.render(scene, camera);
+}
+
+</script>
+
+<style type="text/css">
+	html, body {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+	}
+</style>
+
+</head>
+
+<body>
+    
+	<div id="viewport"></div>
+	
+</body>
+
+</html>
