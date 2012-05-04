@@ -503,39 +503,73 @@
 		return geometry.faces;
 	};
 	
-	CSG.Node.prototype.toGeometry = function( untransform ) {
-		var i, face,
-			geometry = new THREE.Geometry(),
-			polygons = this.allPolygons(),
-			a, b, c;
-		
-		untransform = untransform || new THREE.Matrix4().identity();
-		
-		for ( i = 0; i < polygons.length; i++ ) {
-			// @todo, avoid overlapping vertices
+	CSG.Node.prototype.toGeometry = (function() {
+		var getVertex = function( vertex, vertex_dictionary ) {
+			if ( vertex.idx !== undefined ) return vertex;
 			
-			geometry.vertices.push( polygons[i].vertices[0].clone(), polygons[i].vertices[1].clone(), polygons[i].vertices[2].clone() );
+			if ( vertex_dictionary.count === undefined ) vertex_dictionary.count = 0;
 			
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 3] );
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 2] );
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1] );
+			var vertex_identifier = vertex.x + '_' + vertex.y + '_' + vertex.z;
 			
-			face = polygons[i];
-			face.a = geometry.vertices.length - 3;
-			face.b = geometry.vertices.length - 2;
-			face.c = geometry.vertices.length - 1;
+			if ( vertex_dictionary[ vertex_identifier ] !== undefined ) {
+				return vertex_dictionary[ vertex_identifier ];
+			} else {
+				vertex = vertex.clone();
+				vertex.idx = vertex_dictionary.count++;
+				vertex_dictionary[ vertex_identifier ] = vertex;
+			}
 			
-			geometry.faces.push( face );
-			
-			geometry.faceVertexUvs[0].push( new THREE.UV( ), new THREE.UV( ), new THREE.UV( ) );
-		}
+			return vertex;
+		};
 		
-		
-		geometry.computeBoundingSphere();
-		geometry.computeBoundingBox();
-		
-		return geometry;
-	};
+		return function( untransform ) {
+			var i, face,
+				geometry = new THREE.Geometry(),
+				polygons = this.allPolygons(),
+				vertex_dictionary = {},
+				a, b, c;
+			
+			untransform = untransform || new THREE.Matrix4().identity();
+			
+			for ( i = 0; i < polygons.length; i++ ) {
+				// @todo, avoid overlapping vertices
+				
+				a = getVertex( polygons[i].vertices[0], vertex_dictionary );
+				b = getVertex( polygons[i].vertices[1], vertex_dictionary );
+				c = getVertex( polygons[i].vertices[2], vertex_dictionary );
+				
+				if ( a.idx >= geometry.vertices.length ) {
+					geometry.vertices.push( a );
+					untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1] );
+				}
+				
+				if ( b.idx >= geometry.vertices.length ) {
+					geometry.vertices.push( b );
+					untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1] );
+				}
+				
+				if ( c.idx >= geometry.vertices.length ) {
+					geometry.vertices.push( c );
+					untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1] );
+				}
+				
+				face = polygons[i];
+				face.a = a.idx;
+				face.b = b.idx;
+				face.c = c.idx;
+				
+				geometry.faces.push( face );
+				
+				geometry.faceVertexUvs[0].push( new THREE.UV( ), new THREE.UV( ), new THREE.UV( ) );
+			}
+			
+			
+			geometry.computeBoundingSphere();
+			geometry.computeBoundingBox();
+			
+			return geometry;
+		};
+	})();
 	
 	/* Add CSG capabilities to THREE.Mesh */
 	THREE.Mesh.prototype._buildBSPTree = function() {
