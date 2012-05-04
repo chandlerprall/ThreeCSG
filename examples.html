@@ -4,7 +4,7 @@
 
 <head>
 
-<script type="text/javascript" src="http://chandler.prallfamily.com/threebuilds/builds/r48/ThreeDebug.js"></script>
+<script type="text/javascript" src="http://chandler.prallfamily.com/threebuilds/builds/r49/ThreeDebug.js"></script>
 <script type="text/javascript" src="ThreeCSG.js"></script>
 
 <script type="text/javascript">
@@ -12,7 +12,7 @@ var renderer, scene, camera;
 
 window.onload = function() {
 	
-	renderer = new THREE.WebGLRenderer({antialias: false});
+	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.getElementById('viewport').appendChild(renderer.domElement);
 	

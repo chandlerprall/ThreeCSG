@@ -2,6 +2,8 @@
 (function() {
 	var CSG;
 	
+	if ( parseInt( THREE.REVISION, 10 ) < 49 ) throw 'ThreeCSG: three.js must be revision 49 or higher';
+	
 	THREE.GeometryUtils.triangulateQuads = function ( geometry ) {
 
 		for ( var i = geometry.faces.length - 1; i >= 0; i -- ) {
@@ -88,57 +90,49 @@
 	
 	
 	/* Extend core Three.js objects */
-	THREE.Vector3.prototype.lerp = function(a, t) {
+	THREE.Vector3.prototype.lerpVertex = function(a, t) {
 		return this.addSelf(
 			a.clone().subSelf( this ).multiplyScalar( t )
 		);
 	};
 	
-	THREE.Vertex.prototype.clone = function() {
-		var vertex = new THREE.Vertex( this.position.clone() );
+	THREE.Vector3.prototype.cloneVertex = function() {
+		var vertex = this.clone();
 		if ( this.normal ) {
 			vertex.normal = this.normal.clone();
 		}
 		return vertex;
 	};
 	
-	THREE.Vertex.prototype.flip = function() {
+	THREE.Vector3.prototype.flipVertex = function() {
 		if ( this.normal ) {
 			this.normal.negate();
 		}
 	};
 	
-	THREE.Vertex.prototype.interpolate = function(other, t) {
-		var vertex = new THREE.Vertex( this.position.clone().lerp( other.position, t ) );
+	THREE.Vector3.prototype.interpolateVertex = function( other, t ) {
+		var vertex = this.clone().lerpVertex( other, t );
 		if ( this.normal ) {
-			vertex.normal = this.normal.clone().lerp( other.normal, t );
-			//vertex.normal = this.normal.clone();
+			vertex.normal = this.normal.clone().lerpVertex( other.normal, t );
 		}
 		return vertex;
 	};
 	
-	THREE.Face3.prototype.clone = function() {
-		var face = new THREE.Face3( this.a, this.b, this.c, this.normal.clone(), this.color.clone(), this.materialIndex );
+	THREE.Face3.prototype.csgClone = function() {
+		var face = this.clone();
+		
 		if ( this.vertices ) {
 			face.vertices = [
-				this.vertices[0].clone(),
-				this.vertices[1].clone(),
-				this.vertices[2].clone()
+				this.vertices[0].cloneVertex(),
+				this.vertices[1].cloneVertex(),
+				this.vertices[2].cloneVertex()
 			];
-		}
-		
-		if ( this.vertexNormals.length ) {
-			face.vertexNormals.push(
-				this.vertexNormals[0].clone(),
-				this.vertexNormals[1].clone(),
-				this.vertexNormals[2].clone()
-			);
 		}
 		
 		return face;
 	};
 	
-	THREE.Face3.prototype.flip = function() {
+	THREE.Face3.prototype.csgFlip = function() {
 		this.normal.negate();
 		
 		var t = this.a;
@@ -153,6 +147,12 @@
 			this.vertexNormals[0].negate();
 			this.vertexNormals[1].negate();
 			this.vertexNormals[2].negate();
+		}
+		
+		if ( this.vertexTangents.length ) {
+			this.vertexTangents[0].negate();
+			this.vertexTangents[1].negate();
+			this.vertexTangents[2].negate();
 		}
 	};
 	
@@ -208,7 +208,7 @@
 			types = [];
 		
 		for (i = 0; i < polygon.vertices.length; i++) {
-			t = this.normal.dot( polygon.vertices[i].position ) - this.w;
+			t = this.normal.dot( polygon.vertices[i] ) - this.w;
 			type = (t < -CSG.Plane.EPSILON) ? BACK : (t > CSG.Plane.EPSILON) ? FRONT : COPLANAR;
 			polygonType |= type;
 			types.push( type );
@@ -243,12 +243,12 @@
 					vj = polygon.vertices[j];
 					
 					if ( ti != BACK ) f.push( vi );
-					if ( ti != FRONT ) b.push( ti != BACK ? vi.clone() : vi.clone() );
+					if ( ti != FRONT ) b.push( ti != BACK ? vi.cloneVertex() : vi.cloneVertex() );
 					if ( (ti | tj) == SPANNING ) {
-						t = ( this.w - this.normal.dot( vi.position ) ) / this.normal.dot( vj.position.clone().subSelf( vi.position ) );
-						v = vi.interpolate( vj, t );
-						f.push( v.clone() );
-						b.push( v.clone() );
+						t = ( this.w - this.normal.dot( vi ) ) / this.normal.dot( vj.cloneVertex().subSelf( vi ) );
+						v = vi.interpolateVertex( vj, t );
+						f.push( v.cloneVertex() );
+						b.push( v.cloneVertex() );
 					}
 				}
 				
@@ -288,7 +288,7 @@
 		node.plane = this.plane && this.plane.clone();
 		node.front = this.front && this.front.clone();
 		node.back = this.back && this.back.clone();
-		node.polygons = this.polygons.map( function(p) { return p.clone(); } );
+		node.polygons = this.polygons.map( function(p) { return p.csgClone(); } );
 		return node;
 	};
 	
@@ -297,7 +297,7 @@
 		var i, temp;
 		
 		for ( i = 0; i < this.polygons.length; i++ ) {
-		  this.polygons[i].flip();
+		  this.polygons[i].csgFlip();
 		}
 		
 		this.plane.flip();
@@ -313,11 +313,11 @@
 	CSG.Node.prototype.clipPolygons = function( polygons ) {
 		var front, back, i;
 		
-		if (!this.plane) return polygons.slice();
+		if ( !this.plane ) return polygons.slice();
 		
 		front = [], back = [];
 		
-		for (i = 0; i < polygons.length; i++) {
+		for ( i = 0; i < polygons.length; i++ ) {
 			this.plane.splitPolygon( polygons[i], front, back, front, back );
 		}
 		
@@ -439,15 +439,15 @@
 		if (!faces.length) return;
 		
 		if (!this.plane) {
-			var n = faces[0].vertices[1].position.clone().subSelf(
-				faces[0].vertices[0].position
+			var n = faces[0].vertices[1].cloneVertex().subSelf(
+				faces[0].vertices[0]
 			).crossSelf(
-				faces[0].vertices[2].position.clone().subSelf( faces[0].vertices[0].position )
+				faces[0].vertices[2].cloneVertex().subSelf( faces[0].vertices[0] )
 			).normalize();
 			
 			this.plane = new CSG.Plane(
 				n,
-				n.clone().dot( faces[0].vertices[0].position )
+				n.clone().dot( faces[0].vertices[0] )
 			);
 		}
 		
@@ -490,12 +490,12 @@
 		for ( i = 0; i < geometry.faces.length; i++ ) {
 			face = geometry.faces[i];
 			
-			v1 = geometry.vertices[face.a].clone();
-			transform_matrix.multiplyVector3( v1.position );
-			v2 = geometry.vertices[face.b].clone();
-			transform_matrix.multiplyVector3( v2.position );
-			v3 = geometry.vertices[face.c].clone();
-			transform_matrix.multiplyVector3( v3.position );
+			v1 = geometry.vertices[face.a].cloneVertex();
+			transform_matrix.multiplyVector3( v1 );
+			v2 = geometry.vertices[face.b].cloneVertex();
+			transform_matrix.multiplyVector3( v2 );
+			v3 = geometry.vertices[face.c].cloneVertex();
+			transform_matrix.multiplyVector3( v3 );
 			
 			face.vertices = [ v1, v2, v3 ];
 		}
@@ -516,9 +516,9 @@
 			
 			geometry.vertices.push( polygons[i].vertices[0].clone(), polygons[i].vertices[1].clone(), polygons[i].vertices[2].clone() );
 			
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 3].position );
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 2].position );
-			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1].position );
+			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 3] );
+			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 2] );
+			untransform.multiplyVector3( geometry.vertices[geometry.vertices.length - 1] );
 			
 			face = polygons[i];
 			face.a = geometry.vertices.length - 3;
