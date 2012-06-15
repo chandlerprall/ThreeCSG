@@ -28,84 +28,59 @@ window.onload = function() {
 	camera.lookAt(scene.position);
 	scene.add(camera);
 	
-	var obj_1, obj_2;
+	
+	// Example #1 - Cube (mesh) subtract Sphere (mesh)
+	(function() {
+		var cube_geometry = new THREE.CubeGeometry( 3, 3, 3 );
+		var cube_mesh = new THREE.Mesh( cube_geometry );
+		cube_mesh.position.x = -10;
+		var cube_bsp = new ThreeBSP( cube_mesh );
+		
+		var sphere_geometry = new THREE.SphereGeometry( 1.8, 32, 32 );
+		var sphere_mesh = new THREE.Mesh( sphere_geometry );
+		sphere_mesh.position.x = -9.9;
+		var sphere_bsp = new ThreeBSP( sphere_mesh );
+		
+		var subtract_bsp = cube_bsp.subtract( sphere_bsp );
+		
+		scene.add(
+			subtract_bsp.toMesh( new THREE.MeshNormalMaterial )
+		);
+	})();
 	
 	
-	/*
-	 * Example #1
-	 */
-	obj_1 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	
-	obj_2 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	obj_2.position.set(1, 1, 1);
-	
-	obj_1.subtract( obj_2 );
-	scene.add( obj_1 );
-	obj_1.position.x = -20;
+	// Example #2 - Sphere (geometry) union Cube (geometry)
+	(function() {
+		var sphere_geometry = new THREE.SphereGeometry( 2, 16, 16 );
+		var sphere_bsp = new ThreeBSP( sphere_geometry );
+		
+		var cube_geometry = new THREE.CubeGeometry( 7, .5, 3 );
+		var cube_bsp = new ThreeBSP( cube_geometry );
+		
+		var union_bsp = sphere_bsp.union( cube_bsp );
+		
+		scene.add(
+			union_bsp.toMesh( new THREE.MeshNormalMaterial )
+		);
+	})();
 	
 	
-	/*
-	 * Example #2
-	 */
-	obj_1 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	
-	obj_2 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	obj_2.position.set(1, 1, 1);
-	obj_2.rotation.y = Math.PI / 4;
-	
-	obj_1.subtract( obj_2 );
-	scene.add( obj_1 );
-	obj_1.position.x = -10;
-	
-	
-	/*
-	 * Example #3
-	 */
-	obj_1 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	obj_1.rotation.y = Math.PI / 4;
-	
-	obj_2 = new THREE.Mesh(
-		new THREE.SphereGeometry(2, 12, 12),
-		new THREE.MeshNormalMaterial
-	);
-	obj_2.position.set(.5, .5, .5);
-	
-	obj_2.intersect( obj_1 );
-	scene.add( obj_2 );
-	
-	
-	/*
-	 * Example #4
-	 */
-	obj_1 = new THREE.Mesh(
-		new THREE.CubeGeometry(3, 3, 3),
-		new THREE.MeshNormalMaterial
-	);
-	
-	obj_2 = new THREE.Mesh(
-		new THREE.SphereGeometry(1, 8, 8),
-		new THREE.MeshNormalMaterial
-	);
-	obj_2.position.set(1.5, 1.5, 1.5);
-	
-	obj_2.union( obj_1 );
-	scene.add( obj_2 );
-	obj_2.position.x = 10;
+	// Example #2 - Sphere (geometry) intersect Sphere (mesh)
+	(function() {
+		var sphere_geometry_1 = new THREE.SphereGeometry( 2, 64, 8 );
+		var sphere_bsp_1 = new ThreeBSP( sphere_geometry_1 );
+		
+		var sphere_geometry_2 = new THREE.SphereGeometry( 2, 8, 32 );
+		var sphere_mesh_2 = new THREE.Mesh( sphere_geometry_2 );
+		sphere_mesh_2.position.x = 2;
+		var sphere_bsp_2 = new ThreeBSP( sphere_mesh_2 );
+		
+		var intersect_bsp = sphere_bsp_1.intersect( sphere_bsp_2 );
+		
+		var result_mesh = intersect_bsp.toMesh( new THREE.MeshNormalMaterial );
+		result_mesh.position.x = 10;
+		scene.add( result_mesh );
+	})();
 	
 	
 	renderer.render(scene, camera);
