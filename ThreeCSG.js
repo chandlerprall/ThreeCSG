@@ -132,6 +132,8 @@ window.ThreeBSP = (function() {
 			polygons = this.tree.allPolygons(),
 			polygon_count = polygons.length,
 			polygon, polygon_vertice_count,
+			vertice_dict = {},
+			vertex_idx_a, vertex_idx_b, vertex_idx_c,
 			vertex, face;
 		
 		for ( i = 0; i < polygon_count; i++ ) {
@@ -142,22 +144,38 @@ window.ThreeBSP = (function() {
 				vertex = polygon.vertices[0];
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
-				geometry.vertices.push( vertex );
+				
+				if ( typeof vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] !== 'undefined' ) {
+					vertex_idx_a = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ];
+				} else {
+					geometry.vertices.push( vertex );
+					vertex_idx_a = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] = geometry.vertices.length - 1;
+				}
 				
 				vertex = polygon.vertices[j-1];
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
-				geometry.vertices.push( vertex );
+				if ( typeof vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] !== 'undefined' ) {
+					vertex_idx_b = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ];
+				} else {
+					geometry.vertices.push( vertex );
+					vertex_idx_b = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] = geometry.vertices.length - 1;
+				}
 				
 				vertex = polygon.vertices[j];
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
-				geometry.vertices.push( vertex );
+				if ( typeof vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] !== 'undefined' ) {
+					vertex_idx_c = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ];
+				} else {
+					geometry.vertices.push( vertex );
+					vertex_idx_c = vertice_dict[ vertex.x + ',' + vertex.y + ',' + vertex.z ] = geometry.vertices.length - 1;
+				}
 				
 				face = new THREE.Face3(
-					geometry.vertices.length - 3,
-					geometry.vertices.length - 2,
-					geometry.vertices.length - 1,
+					vertex_idx_a,
+					vertex_idx_b,
+					vertex_idx_c,
 					new THREE.Vector3( polygon.normal.x, polygon.normal.y, polygon.normal.z )
 				);
 				
@@ -165,7 +183,6 @@ window.ThreeBSP = (function() {
 			}
 			
 		}
-		
 		return geometry;
 	};
 	ThreeBSP.prototype.toMesh = function( material ) {
