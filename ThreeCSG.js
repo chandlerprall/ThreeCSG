@@ -136,18 +136,16 @@ window.ThreeBSP = (function() {
 			vertice_dict = {},
 			vertex_idx_a, vertex_idx_b, vertex_idx_c,
 			vertex, face,
-			verticeNormals, verticeUvs;
+			verticeUvs;
 		
 		for ( i = 0; i < polygon_count; i++ ) {
 			polygon = polygons[i];
 			polygon_vertice_count = polygon.vertices.length;
 			
 			for ( j = 2; j < polygon_vertice_count; j++ ) {
-				verticeNormals = [];
 				verticeUvs = [];
 				
 				vertex = polygon.vertices[0];
-				verticeNormals.push( vertex.normal );
 				verticeUvs.push( new THREE.UV( vertex.uv.x, vertex.uv.y ) );
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
@@ -160,7 +158,6 @@ window.ThreeBSP = (function() {
 				}
 				
 				vertex = polygon.vertices[j-1];
-				verticeNormals.push( vertex.normal );
 				verticeUvs.push( new THREE.UV( vertex.uv.x, vertex.uv.y ) );
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
@@ -172,7 +169,6 @@ window.ThreeBSP = (function() {
 				}
 				
 				vertex = polygon.vertices[j];
-				verticeNormals.push( vertex.normal );
 				verticeUvs.push( new THREE.UV( vertex.uv.x, vertex.uv.y ) );
 				vertex = new THREE.Vector3( vertex.x, vertex.y, vertex.z );
 				matrix.multiplyVector3( vertex );
@@ -190,11 +186,6 @@ window.ThreeBSP = (function() {
 					new THREE.Vector3( polygon.normal.x, polygon.normal.y, polygon.normal.z )
 				);
 				
-				face.vertexNormals.push(
-					verticeNormals[0],
-					verticeNormals[1],
-					verticeNormals[2]
-				);
 				geometry.faces.push( face );
 				geometry.faceVertexUvs[0].push( verticeUvs );
 			}
@@ -257,7 +248,6 @@ window.ThreeBSP = (function() {
 		this.w *= -1;
 		
 		for ( i = this.vertices.length - 1; i >= 0; i-- ) {
-			//this.vertices[i].normal.multiplyScalar( -1 );
 			vertices.push( this.vertices[i] );
 		};
 		this.vertices = vertices;
@@ -347,7 +337,6 @@ window.ThreeBSP = (function() {
 			if ( b.length >= 3 ) back.push( new ThreeBSP.Polygon( b ).calculateProperties() );
 		}
 	};
-	
 	
 	ThreeBSP.Vertex = function( x, y, z, normal, uv ) {
 		this.x = x;
