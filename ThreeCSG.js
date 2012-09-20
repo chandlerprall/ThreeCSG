@@ -499,7 +499,6 @@ window.ThreeBSP = (function() {
 		
 		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
 			this.divider.splitPolygon( polygons[i], front, back, front, back );
-			//if (window.debug) console.debug( front.length, back.length );
 		}
 		
 		if ( this.front ) front = this.front.clipPolygons( front );
