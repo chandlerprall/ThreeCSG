@@ -4,7 +4,7 @@
 
 <head>
 
-<script type="text/javascript" src="http://www.chandlerprall.com/threebuilds/builds/r49/ThreeDebug.js"></script>
+<script type="text/javascript" src="https://raw.github.com/mrdoob/three.js/master/build/three.min.js"></script>
 <script type="text/javascript" src="ThreeCSG.js"></script>
 
 <script type="text/javascript">
@@ -40,7 +40,7 @@ window.onload = function() {
 		var cube_mesh = new THREE.Mesh( cube_geometry );
 		cube_mesh.position.x = -7;
 		var cube_bsp = new ThreeBSP( cube_mesh );
-		
+
 		var sphere_geometry = new THREE.SphereGeometry( 1.8, 32, 32 );
 		var sphere_mesh = new THREE.Mesh( sphere_geometry );
 		sphere_mesh.position.x = -7;
@@ -53,8 +53,7 @@ window.onload = function() {
 
 		console.log( 'Example 1: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
-	
-	
+
 	// Example #2 - Sphere (geometry) union Cube (geometry)
 	(function() {
 		var start_time = (new Date()).getTime();
@@ -96,7 +95,7 @@ window.onload = function() {
 
 		console.log( 'Example 3: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
-	
+
 	(function render() {
 		requestAnimationFrame( render );
 		renderer.render(scene, camera);

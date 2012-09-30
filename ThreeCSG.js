@@ -198,7 +198,7 @@ window.ThreeBSP = (function() {
 			mesh = new THREE.Mesh( geometry, material );
 		
 		mesh.position.getPositionFromMatrix( this.matrix );
-		mesh.rotation.getRotationFromMatrix( this.matrix );
+		mesh.rotation.setEulerFromRotationMatrix( this.matrix );
 		
 		return mesh;
 	};
@@ -413,12 +413,12 @@ window.ThreeBSP = (function() {
 		var i, polygon_count,
 			front = [],
 			back = [];
-		
+
 		this.polygons = [];
 		this.front = this.back = undefined;
 		
 		if ( !(polygons instanceof Array) || polygons.length === 0 ) return;
-		
+
 		this.divider = polygons[0].clone();
 		
 		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
@@ -433,6 +433,17 @@ window.ThreeBSP = (function() {
 			this.back = new ThreeBSP.Node( back );
 		}
 	};
+	ThreeBSP.Node.isConvex = function( polygons ) {
+		var i, j;
+		for ( i = 0; i < polygons.length; i++ ) {
+			for ( j = 0; j < polygons.length; j++ ) {
+				if ( i !== j && polygons[i].classifySide( polygons[j] ) !== BACK ) {
+					return false;
+				}
+			}
+		}
+		return true;
+	};
 	ThreeBSP.Node.prototype.build = function( polygons ) {
 		var i, polygon_count,
 			front = [],
@@ -441,7 +452,7 @@ window.ThreeBSP = (function() {
 		if ( !this.divider ) {
 			this.divider = polygons[0].clone();
 		}
-		
+
 		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
 			this.divider.splitPolygon( polygons[i], this.polygons, this.polygons, front, back );
 		}		
@@ -492,7 +503,7 @@ window.ThreeBSP = (function() {
 	ThreeBSP.Node.prototype.clipPolygons = function( polygons ) {
 		var i, polygon_count,
 			front, back;
-		
+
 		if ( !this.divider ) return polygons.slice();
 		
 		front = [], back = [];
@@ -500,11 +511,11 @@ window.ThreeBSP = (function() {
 		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
 			this.divider.splitPolygon( polygons[i], front, back, front, back );
 		}
-		
+
 		if ( this.front ) front = this.front.clipPolygons( front );
 		if ( this.back ) back = this.back.clipPolygons( back );
 		else back = [];
-		
+
 		return front.concat( back );
 	};
 	
