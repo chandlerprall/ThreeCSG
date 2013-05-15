@@ -1,0 +1,3 @@
+class window.ThreeBSP extends js_ThreeBSP
+  constructor: (args...) ->
+    super args...
