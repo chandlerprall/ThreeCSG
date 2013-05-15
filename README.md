@@ -4,6 +4,7 @@ CSG plugin for Three.js
 
 ```bash
 $ git clone $repo_url
+$ npm install .
 $ python -mSimpleHTTPServer
 Serving HTTP on 0.0.0.0 port 8000 ...
 ```
