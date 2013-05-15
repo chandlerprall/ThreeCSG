@@ -207,56 +207,6 @@ window.ThreeBSP = (function() {
 	  // Placeholder
 	};
 
-	ThreeBSP._Polygon.prototype.flip = function() {
-		var i, vertices = [];
-
-		this.normal.multiplyScalar( -1 );
-		this.w *= -1;
-
-		for ( i = this.vertices.length - 1; i >= 0; i-- ) {
-			vertices.push( this.vertices[i] );
-		};
-		this.vertices = vertices;
-
-		return this;
-	};
-	ThreeBSP._Polygon.prototype.classifyVertex = function( vertex ) {
-		var side_value = this.normal.dot( vertex ) - this.w;
-
-		if ( side_value < -EPSILON ) {
-			return BACK;
-		} else if ( side_value > EPSILON ) {
-			return FRONT;
-		} else {
-			return COPLANAR;
-		}
-	};
-	ThreeBSP._Polygon.prototype.classifySide = function( polygon ) {
-		var i, vertex, classification,
-			num_positive = 0,
-			num_negative = 0,
-			vertice_count = polygon.vertices.length;
-
-		for ( i = 0; i < vertice_count; i++ ) {
-			vertex = polygon.vertices[i];
-			classification = this.classifyVertex( vertex );
-			if ( classification === FRONT ) {
-				num_positive++;
-			} else if ( classification === BACK ) {
-				num_negative++;
-			}
-		}
-
-		if ( num_positive > 0 && num_negative === 0 ) {
-			return FRONT;
-		} else if ( num_positive === 0 && num_negative > 0 ) {
-			return BACK;
-		} else if ( num_positive === 0 && num_negative === 0 ) {
-			return COPLANAR;
-		} else {
-			return SPANNING;
-		}
-	};
 	ThreeBSP._Polygon.prototype.splitPolygon = function( polygon, coplanar_front, coplanar_back, front, back ) {
 		var classification = this.classifySide( polygon );
 
