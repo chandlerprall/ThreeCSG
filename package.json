@@ -1,0 +1,13 @@
+{
+  "name": "threecsg",
+  "version": "0.0.0",
+
+  "dependencies": {
+    "coffee-script": "1.4.0"
+  },
+
+
+  "directories": {
+    "lib": "./lib",
+  },
+}
