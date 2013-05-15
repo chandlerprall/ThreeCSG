@@ -8,6 +8,6 @@
 
 
   "directories": {
-    "lib": "./lib",
-  },
+    "lib": "./lib"
+  }
 }
