@@ -203,45 +203,11 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-
-	ThreeBSP.Polygon = function( vertices, normal, w ) {
-		if ( !( vertices instanceof Array ) ) {
-			vertices = [];
-		}
-
-		this.vertices = vertices;
-		if ( vertices.length > 0 ) {
-			this.calculateProperties();
-		} else {
-			this.normal = this.w = undefined;
-		}
-	};
-	ThreeBSP.Polygon.prototype.calculateProperties = function() {
-		var a = this.vertices[0],
-			b = this.vertices[1],
-			c = this.vertices[2];
-
-		this.normal = b.clone().subtract( a ).cross(
-			c.clone().subtract( a )
-		).normalize();
-
-		this.w = this.normal.clone().dot( a );
-
-		return this;
-	};
-	ThreeBSP.Polygon.prototype.clone = function() {
-		var i, vertice_count,
-			polygon = new ThreeBSP.Polygon;
-
-		for ( i = 0, vertice_count = this.vertices.length; i < vertice_count; i++ ) {
-			polygon.vertices.push( this.vertices[i].clone() );
-		};
-		polygon.calculateProperties();
-
-		return polygon;
+	ThreeBSP._Polygon = function (v, n, w) {
+	  // Placeholder
 	};
 
-	ThreeBSP.Polygon.prototype.flip = function() {
+	ThreeBSP._Polygon.prototype.flip = function() {
 		var i, vertices = [];
 
 		this.normal.multiplyScalar( -1 );
@@ -254,7 +220,7 @@ window.ThreeBSP = (function() {
 
 		return this;
 	};
-	ThreeBSP.Polygon.prototype.classifyVertex = function( vertex ) {
+	ThreeBSP._Polygon.prototype.classifyVertex = function( vertex ) {
 		var side_value = this.normal.dot( vertex ) - this.w;
 
 		if ( side_value < -EPSILON ) {
@@ -265,7 +231,7 @@ window.ThreeBSP = (function() {
 			return COPLANAR;
 		}
 	};
-	ThreeBSP.Polygon.prototype.classifySide = function( polygon ) {
+	ThreeBSP._Polygon.prototype.classifySide = function( polygon ) {
 		var i, vertex, classification,
 			num_positive = 0,
 			num_negative = 0,
@@ -291,7 +257,7 @@ window.ThreeBSP = (function() {
 			return SPANNING;
 		}
 	};
-	ThreeBSP.Polygon.prototype.splitPolygon = function( polygon, coplanar_front, coplanar_back, front, back ) {
+	ThreeBSP._Polygon.prototype.splitPolygon = function( polygon, coplanar_front, coplanar_back, front, back ) {
 		var classification = this.classifySide( polygon );
 
 		if ( classification === COPLANAR ) {
@@ -338,7 +304,7 @@ window.ThreeBSP = (function() {
 		}
 	};
 
-	
+
 
 
 	ThreeBSP.Node = function( polygons ) {
