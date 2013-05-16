@@ -10,20 +10,6 @@ window._ThreeBSP = (function() {
 
 	_ThreeBSP = function( geometry ) { return "PLACEHOLDER"; };
 
-	_ThreeBSP.prototype.union = function( other_tree ) {
-		var a = this.tree.clone(),
-			b = other_tree.tree.clone();
-
-		a.clipTo( b );
-		b.clipTo( a );
-		b.invert();
-		b.clipTo( a );
-		b.invert();
-		a.build( b.allPolygons() );
-		a = new ThreeBSP( a );
-		a.matrix = this.matrix;
-		return a;
-	};
 	_ThreeBSP.prototype.intersect = function( other_tree ) {
 		var a = this.tree.clone(),
 			b = other_tree.tree.clone();

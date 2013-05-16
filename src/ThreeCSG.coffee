@@ -54,6 +54,16 @@ class window.ThreeBSP extends _ThreeBSP
       .invert()
     new ThreeBSP us.build(them.allPolygons()).invert(), @matrix
 
+  union: (other) =>
+    [us, them] = [@tree.clone(), other.tree.clone()]
+    us.clipTo them
+    them
+      .clipTo(us)
+      .invert()
+      .clipTo(us)
+      .invert()
+    new ThreeBSP us.build(them.allPolygons()), @matrix
+
 
 ##
 ## ThreeBSP.Vertex
