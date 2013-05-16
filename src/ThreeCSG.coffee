@@ -91,7 +91,7 @@ class ThreeBSP.Polygon
 
     polys = []
     polys.push new ThreeBSP.Polygon(f) if f.length >= 3
-    polys.push new ThreeBSP.Polygon(b) if f.length >= 3
+    polys.push new ThreeBSP.Polygon(b) if b.length >= 3
     polys
 
   subdivide: (polygon, coplanar_front, coplanar_back, front, back) =>
