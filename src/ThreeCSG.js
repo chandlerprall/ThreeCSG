@@ -203,33 +203,5 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-	ThreeBSP._Node = function( polygons ) { return "XXX: Placeholder"; }
-
-	ThreeBSP._Node.prototype.clipPolygons = function( polygons ) {
-		var i, polygon_count,
-			front, back;
-
-		if ( !this.divider ) return polygons.slice();
-
-		front = [], back = [];
-
-		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
-			this.divider.splitPolygon( polygons[i], front, back, front, back );
-		}
-
-		if ( this.front ) front = this.front.clipPolygons( front );
-		if ( this.back ) back = this.back.clipPolygons( back );
-		else back = [];
-
-		return front.concat( back );
-	};
-
-	ThreeBSP._Node.prototype.clipTo = function( node ) {
-		this.polygons = node.clipPolygons( this.polygons );
-		if ( this.front ) this.front.clipTo( node );
-		if ( this.back ) this.back.clipTo( node );
-	};
-
-
 	return ThreeBSP;
 })();

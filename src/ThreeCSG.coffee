@@ -110,7 +110,7 @@ class ThreeBSP.Polygon
 
 ##
 ## ThreeBSP.Node
-class ThreeBSP.Node extends ThreeBSP._Node
+class ThreeBSP.Node
   clone: =>
     node = new ThreeBSP.Node()
     node.divider  = @divider?.clone()
@@ -152,3 +152,21 @@ class ThreeBSP.Node extends ThreeBSP._Node
       flipper?.invert()
     [@front, @back] = [@back, @front]
     @
+
+  clipPolygons: (polygons) =>
+    return polygons.slice() unless @divider
+    front = []
+    back = []
+
+    for poly in polygons
+      @divider.subdivide poly, front, back, front, back
+
+    front = @front.clipPolygons front if @front
+    back  = @back.clipPolygons  back  if @back
+
+    return front.concat if @back then back else []
+
+  clipTo: (node) =>
+    @polygons = node.clipPolygons @polygons
+    @front?.clipTo node
+    @back?.clipTo node
