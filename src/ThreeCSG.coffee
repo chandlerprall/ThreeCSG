@@ -27,7 +27,7 @@ class window.ThreeBSP extends _ThreeBSP
 ##
 ## ThreeBSP.Vertex
 class ThreeBSP.Vertex extends THREE.Vector3
-  constructor: (x, y, z, @normal=THREE.Vector3(), @uv=THREE.Vector2()) ->
+  constructor: (x, y, z, @normal=new THREE.Vector3(), @uv=new THREE.Vector2()) ->
     super x, y, z
     # TODO: Update callsites and remove aliases
     @subtract = @sub
