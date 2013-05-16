@@ -1,14 +1,14 @@
 'use strict';
-window.ThreeBSP = (function() {
+window._ThreeBSP = (function() {
 
-	var ThreeBSP,
+	var _ThreeBSP,
 		EPSILON = 1e-5,
 		COPLANAR = 0,
 		FRONT = 1,
 		BACK = 2,
 		SPANNING = 3;
 
-	ThreeBSP = function( geometry ) {
+	_ThreeBSP = function( geometry ) {
 		// Convert THREE.Geometry to ThreeBSP
 		var i, _length_i,
 			face, vertex, faceVertexUvs,
@@ -81,7 +81,7 @@ window.ThreeBSP = (function() {
 
 		this.tree = new ThreeBSP.Node( polygons );
 	};
-	ThreeBSP.prototype.subtract = function( other_tree ) {
+	_ThreeBSP.prototype.subtract = function( other_tree ) {
 		var a = this.tree.clone(),
 			b = other_tree.tree.clone();
 
@@ -97,7 +97,7 @@ window.ThreeBSP = (function() {
 		a.matrix = this.matrix;
 		return a;
 	};
-	ThreeBSP.prototype.union = function( other_tree ) {
+	_ThreeBSP.prototype.union = function( other_tree ) {
 		var a = this.tree.clone(),
 			b = other_tree.tree.clone();
 
@@ -111,7 +111,7 @@ window.ThreeBSP = (function() {
 		a.matrix = this.matrix;
 		return a;
 	};
-	ThreeBSP.prototype.intersect = function( other_tree ) {
+	_ThreeBSP.prototype.intersect = function( other_tree ) {
 		var a = this.tree.clone(),
 			b = other_tree.tree.clone();
 
@@ -126,7 +126,7 @@ window.ThreeBSP = (function() {
 		a.matrix = this.matrix;
 		return a;
 	};
-	ThreeBSP.prototype.toGeometry = function() {
+	_ThreeBSP.prototype.toGeometry = function() {
 		var i, j,
 			matrix = new THREE.Matrix4().getInverse( this.matrix ),
 			geometry = new THREE.Geometry(),
@@ -193,7 +193,7 @@ window.ThreeBSP = (function() {
 		}
 		return geometry;
 	};
-	ThreeBSP.prototype.toMesh = function( material ) {
+	_ThreeBSP.prototype.toMesh = function( material ) {
 		var geometry = this.toGeometry(),
 			mesh = new THREE.Mesh( geometry, material );
 
@@ -203,5 +203,5 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-	return ThreeBSP;
+	return _ThreeBSP;
 })();

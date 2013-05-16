@@ -5,6 +5,26 @@ BACK = 2
 SPANNING = 3
 
 ##
+## ThreBSP Driver
+#
+# Can be instantiated with THREE.Geometry,
+# THREE.Mesh or a ThreeBSP.Node
+class window.ThreeBSP extends _ThreeBSP
+  constructor: (treeIsh) ->
+    return super # XXX: Escape hatch
+    @matrix = new THREE.Matrix4()
+    @tree ?= @toTree treeIsh
+
+  toTree: (treeIsh) =>
+    return treeIsh if treeIsh instanceof ThreeBSP.Node
+    if treeIsh instanceof THREE.Mesh
+      treeIsh.updateMatrix()
+      treeIsh = treeIsh.geometry
+      @matrix = treeish.matrix.clone()
+  # TODO: Get polygon list
+  # Set @tree = new ThreeBSP.Node (polys)
+
+##
 ## ThreeBSP.Vertex
 class ThreeBSP.Vertex extends THREE.Vector3
   constructor: (x, y, z, @normal=THREE.Vector3(), @uv=THREE.Vector2()) ->
