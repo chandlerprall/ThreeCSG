@@ -11,18 +11,63 @@ SPANNING = 3
 # THREE.Mesh or a ThreeBSP.Node
 class window.ThreeBSP extends _ThreeBSP
   constructor: (treeIsh) ->
-    return super # XXX: Escape hatch
     @matrix = new THREE.Matrix4()
-    @tree ?= @toTree treeIsh
+    @tree   = @toTree treeIsh
 
   toTree: (treeIsh) =>
     return treeIsh if treeIsh instanceof ThreeBSP.Node
-    if treeIsh instanceof THREE.Mesh
-      treeIsh.updateMatrix()
-      treeIsh = treeIsh.geometry
-      @matrix = treeish.matrix.clone()
-  # TODO: Get polygon list
-  # Set @tree = new ThreeBSP.Node (polys)
+    polygons = []
+    geometry =
+      if treeIsh instanceof THREE.Geometry
+        treeIsh
+      else if treeIsh instanceof THREE.Mesh
+        treeIsh.updateMatrix()
+        @matrix = treeIsh.matrix.clone()
+        treeIsh.geometry
+
+    for face, i in geometry.faces
+      faceVertexUvs = geometry.faceVertexUvs[0][i]
+      polygon = new ThreeBSP.Polygon()
+      do (face, i) =>
+        if ( face instanceof THREE.Face3 )
+          vertex = geometry.vertices[ face.a ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[0], new THREE.Vector2( faceVertexUvs[0].x, faceVertexUvs[0].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+
+          vertex = geometry.vertices[ face.b ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[1], new THREE.Vector2( faceVertexUvs[1].x, faceVertexUvs[1].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+
+          vertex = geometry.vertices[ face.c ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[2], new THREE.Vector2( faceVertexUvs[2].x, faceVertexUvs[2].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+        else if ( typeof THREE.Face4 )
+          vertex = geometry.vertices[ face.a ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[0], new THREE.Vector2( faceVertexUvs[0].x, faceVertexUvs[0].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+
+          vertex = geometry.vertices[ face.b ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[1], new THREE.Vector2( faceVertexUvs[1].x, faceVertexUvs[1].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+
+          vertex = geometry.vertices[ face.c ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[2], new THREE.Vector2( faceVertexUvs[2].x, faceVertexUvs[2].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+
+          vertex = geometry.vertices[ face.d ]
+          vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[3], new THREE.Vector2( faceVertexUvs[3].x, faceVertexUvs[3].y ) )
+          vertex.applyMatrix4(this.matrix)
+          polygon.vertices.push( vertex )
+        else
+          throw new Error("Invalid face type at index #{i}")
+        polygons.push polygon.calculateProperties()
+    new ThreeBSP.Node polygons
 
 ##
 ## ThreeBSP.Vertex

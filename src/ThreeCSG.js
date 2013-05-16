@@ -8,79 +8,8 @@ window._ThreeBSP = (function() {
 		BACK = 2,
 		SPANNING = 3;
 
-	_ThreeBSP = function( geometry ) {
-		// Convert THREE.Geometry to ThreeBSP
-		var i, _length_i,
-			face, vertex, faceVertexUvs,
-			polygon,
-			polygons = [],
-			tree;
-
-		if ( geometry instanceof THREE.Geometry ) {
-			this.matrix = new THREE.Matrix4;
-		} else if ( geometry instanceof THREE.Mesh ) {
-			// #todo: add hierarchy support
-			geometry.updateMatrix();
-			this.matrix = geometry.matrix.clone();
-			geometry = geometry.geometry;
-		} else if ( geometry instanceof ThreeBSP.Node ) {
-			this.tree = geometry;
-			this.matrix = new THREE.Matrix4;
-			return this;
-		} else {
-			throw 'ThreeBSP: Given geometry is unsupported';
-		}
-
-		for ( i = 0, _length_i = geometry.faces.length; i < _length_i; i++ ) {
-			face = geometry.faces[i];
-			faceVertexUvs = geometry.faceVertexUvs[0][i];
-			polygon = new ThreeBSP.Polygon;
-
-			if ( face instanceof THREE.Face3 ) {
-				vertex = geometry.vertices[ face.a ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[0], new THREE.Vector2( faceVertexUvs[0].x, faceVertexUvs[0].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-
-				vertex = geometry.vertices[ face.b ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[1], new THREE.Vector2( faceVertexUvs[1].x, faceVertexUvs[1].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-
-				vertex = geometry.vertices[ face.c ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[2], new THREE.Vector2( faceVertexUvs[2].x, faceVertexUvs[2].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-			} else if ( typeof THREE.Face4 ) {
-				vertex = geometry.vertices[ face.a ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[0], new THREE.Vector2( faceVertexUvs[0].x, faceVertexUvs[0].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-
-				vertex = geometry.vertices[ face.b ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[1], new THREE.Vector2( faceVertexUvs[1].x, faceVertexUvs[1].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-
-				vertex = geometry.vertices[ face.c ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[2], new THREE.Vector2( faceVertexUvs[2].x, faceVertexUvs[2].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-
-				vertex = geometry.vertices[ face.d ];
-				vertex = new ThreeBSP.Vertex( vertex.x, vertex.y, vertex.z, face.vertexNormals[3], new THREE.Vector2( faceVertexUvs[3].x, faceVertexUvs[3].y ) );
-				vertex.applyMatrix4(this.matrix);
-				polygon.vertices.push( vertex );
-			} else {
-				throw 'Invalid face type at index ' + i;
-			}
-
-			polygon.calculateProperties();
-			polygons.push( polygon );
-		};
-
-		this.tree = new ThreeBSP.Node( polygons );
-	};
+	_ThreeBSP = function( geometry ) { return "PLACEHOLDER"; };
+					  
 	_ThreeBSP.prototype.subtract = function( other_tree ) {
 		var a = this.tree.clone(),
 			b = other_tree.tree.clone();
