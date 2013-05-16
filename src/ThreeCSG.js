@@ -205,17 +205,6 @@ window.ThreeBSP = (function() {
 
 	ThreeBSP._Node = function( polygons ) { return "XXX: Placeholder"; }
 
-	ThreeBSP._Node.isConvex = function( polygons ) {
-		var i, j;
-		for ( i = 0; i < polygons.length; i++ ) {
-			for ( j = 0; j < polygons.length; j++ ) {
-				if ( i !== j && polygons[i].classifySide( polygons[j] ) !== BACK ) {
-					return false;
-				}
-			}
-		}
-		return true;
-	};
 	ThreeBSP._Node.prototype.build = function( polygons ) {
 		var i, polygon_count,
 			front = [],
@@ -238,22 +227,6 @@ window.ThreeBSP = (function() {
 			if ( !this.back ) this.back = new ThreeBSP.Node();
 			this.back.build( back );
 		}
-	};
-	ThreeBSP._Node.prototype.allPolygons = function() {
-		var polygons = this.polygons.slice();
-		if ( this.front ) polygons = polygons.concat( this.front.allPolygons() );
-		if ( this.back ) polygons = polygons.concat( this.back.allPolygons() );
-		return polygons;
-	};
-	ThreeBSP._Node.prototype.clone = function() {
-		var node = new ThreeBSP.Node();
-
-		node.divider = this.divider.clone();
-		node.polygons = this.polygons.map( function( polygon ) { return polygon.clone(); } );
-		node.front = this.front && this.front.clone();
-		node.back = this.back && this.back.clone();
-
-		return node;
 	};
 	ThreeBSP._Node.prototype.invert = function() {
 		var i, polygon_count, temp;

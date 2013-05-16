@@ -110,6 +110,14 @@ class ThreeBSP.Polygon
 ##
 ## ThreeBSP.Node
 class ThreeBSP.Node extends ThreeBSP._Node
+  clone: =>
+    node = new ThreeBSP.Node()
+    node.divider  = @divider?.clone()
+    node.polygons = (p.clone() for p in @polygons)
+    node.front    = @front?.clone()
+    node.back     = @back?.clone()
+    node
+
   constructor: (polygons) ->
     @polygons = []
     @front = @back = undefined
@@ -123,3 +131,14 @@ class ThreeBSP.Node extends ThreeBSP._Node
 
     @front = new ThreeBSP.Node front if front.length
     @back  = new ThreeBSP.Node back if back.length
+
+  isConvex: (polys) =>
+    for inner in polys
+      for outer in polys
+        return false if inner != outer and outer.classifySide(inner) != BACK
+    true
+
+  allPolygons: =>
+    @polygons.slice()
+      .concat(@front?.allPolygons() or [])
+      .concat(@back?.allPolygons() or [])
