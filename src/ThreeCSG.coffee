@@ -30,6 +30,7 @@ class ThreeBSP.Polygon
     @calculateProperties() if @vertices.length
     # TODO: Update callsites and remove aliases
     @splitPolygon = @subdivide
+    @invert = @flip
 
   calculateProperties: () =>
     [a, b, c] = @vertices
@@ -142,3 +143,11 @@ class ThreeBSP.Node extends ThreeBSP._Node
     @polygons.slice()
       .concat(@front?.allPolygons() or [])
       .concat(@back?.allPolygons() or [])
+
+  invert: =>
+    for poly in @polygons
+      do poly.flip
+    for flipper in [@divider, @front, @back]
+      flipper?.invert()
+    [@front, @back] = [@back, @front]
+    @

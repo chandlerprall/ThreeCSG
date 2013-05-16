@@ -228,23 +228,6 @@ window.ThreeBSP = (function() {
 			this.back.build( back );
 		}
 	};
-	ThreeBSP._Node.prototype.invert = function() {
-		var i, polygon_count, temp;
-
-		for ( i = 0, polygon_count = this.polygons.length; i < polygon_count; i++ ) {
-			this.polygons[i].flip();
-		}
-
-		this.divider.flip();
-		if ( this.front ) this.front.invert();
-		if ( this.back ) this.back.invert();
-
-		temp = this.front;
-		this.front = this.back;
-		this.back = temp;
-
-		return this;
-	};
 	ThreeBSP._Node.prototype.clipPolygons = function( polygons ) {
 		var i, polygon_count,
 			front, back;
