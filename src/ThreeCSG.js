@@ -203,30 +203,8 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-	ThreeBSP._Node = function( polygons ) {
-		var i, polygon_count,
-			front = [],
-			back = [];
+	ThreeBSP._Node = function( polygons ) { return "XXX: Placeholder"; }
 
-		this.polygons = [];
-		this.front = this.back = undefined;
-
-		if ( !(polygons instanceof Array) || polygons.length === 0 ) return;
-
-		this.divider = polygons[0].clone();
-
-		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
-			this.divider.splitPolygon( polygons[i], this.polygons, this.polygons, front, back );
-		}
-
-		if ( front.length > 0 ) {
-			this.front = new ThreeBSP.Node( front );
-		}
-
-		if ( back.length > 0 ) {
-			this.back = new ThreeBSP.Node( back );
-		}
-	};
 	ThreeBSP._Node.isConvex = function( polygons ) {
 		var i, j;
 		for ( i = 0; i < polygons.length; i++ ) {

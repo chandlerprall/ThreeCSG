@@ -111,4 +111,15 @@ class ThreeBSP.Polygon
 ## ThreeBSP.Node
 class ThreeBSP.Node extends ThreeBSP._Node
   constructor: (polygons) ->
-    super
+    @polygons = []
+    @front = @back = undefined
+    @divider = polygons?[0]?.clone()
+
+    return unless polygons? and polygons.length
+
+    [front, back] = [[], []]
+    for poly in polygons
+      @divider.subdivide poly, @polygons, @polygons, front, back
+
+    @front = new ThreeBSP.Node front if front.length
+    @back  = new ThreeBSP.Node back if back.length
