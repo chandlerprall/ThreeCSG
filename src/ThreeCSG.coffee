@@ -121,17 +121,7 @@ class ThreeBSP.Node extends ThreeBSP._Node
 
   constructor: (polygons) ->
     @polygons = []
-    @front = @back = undefined
-    @divider = polygons?[0]?.clone()
-
-    return unless polygons? and polygons.length
-
-    [front, back] = [[], []]
-    for poly in polygons
-      @divider.subdivide poly, @polygons, @polygons, front, back
-
-    @front = new ThreeBSP.Node front if front.length
-    @back  = new ThreeBSP.Node back if back.length
+    @build(polygons) if polygons? and polygons.length
 
   isConvex: (polys) =>
     for inner in polys
