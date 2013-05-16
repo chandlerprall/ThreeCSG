@@ -4,6 +4,8 @@ FRONT = 1
 BACK = 2
 SPANNING = 3
 
+##
+## ThreeBSP.Vertex
 class ThreeBSP.Vertex extends THREE.Vector3
   constructor: (x, y, z, @normal=THREE.Vector3(), @uv=THREE.Vector2()) ->
     super x, y, z
@@ -21,6 +23,8 @@ class ThreeBSP.Vertex extends THREE.Vector3
   interpolate: (args...) =>
     @clone().lerp args...
 
+##
+## ThreeBSP.Polygon
 class ThreeBSP.Polygon
   constructor: (@vertices=[], @normal, @w) ->
     @calculateProperties() if @vertices.length
@@ -102,3 +106,9 @@ class ThreeBSP.Polygon
             coplanar_back.push poly
         else
           throw new Error("BUG: Polygon of classification #{side} in subdivision")
+
+##
+## ThreeBSP.Node
+class ThreeBSP.Node extends ThreeBSP._Node
+  constructor: (polygons) ->
+    super

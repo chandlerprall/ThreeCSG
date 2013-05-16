@@ -203,7 +203,7 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-	ThreeBSP.Node = function( polygons ) {
+	ThreeBSP._Node = function( polygons ) {
 		var i, polygon_count,
 			front = [],
 			back = [];
@@ -227,7 +227,7 @@ window.ThreeBSP = (function() {
 			this.back = new ThreeBSP.Node( back );
 		}
 	};
-	ThreeBSP.Node.isConvex = function( polygons ) {
+	ThreeBSP._Node.isConvex = function( polygons ) {
 		var i, j;
 		for ( i = 0; i < polygons.length; i++ ) {
 			for ( j = 0; j < polygons.length; j++ ) {
@@ -238,7 +238,7 @@ window.ThreeBSP = (function() {
 		}
 		return true;
 	};
-	ThreeBSP.Node.prototype.build = function( polygons ) {
+	ThreeBSP._Node.prototype.build = function( polygons ) {
 		var i, polygon_count,
 			front = [],
 			back = [];
@@ -261,13 +261,13 @@ window.ThreeBSP = (function() {
 			this.back.build( back );
 		}
 	};
-	ThreeBSP.Node.prototype.allPolygons = function() {
+	ThreeBSP._Node.prototype.allPolygons = function() {
 		var polygons = this.polygons.slice();
 		if ( this.front ) polygons = polygons.concat( this.front.allPolygons() );
 		if ( this.back ) polygons = polygons.concat( this.back.allPolygons() );
 		return polygons;
 	};
-	ThreeBSP.Node.prototype.clone = function() {
+	ThreeBSP._Node.prototype.clone = function() {
 		var node = new ThreeBSP.Node();
 
 		node.divider = this.divider.clone();
@@ -277,7 +277,7 @@ window.ThreeBSP = (function() {
 
 		return node;
 	};
-	ThreeBSP.Node.prototype.invert = function() {
+	ThreeBSP._Node.prototype.invert = function() {
 		var i, polygon_count, temp;
 
 		for ( i = 0, polygon_count = this.polygons.length; i < polygon_count; i++ ) {
@@ -294,7 +294,7 @@ window.ThreeBSP = (function() {
 
 		return this;
 	};
-	ThreeBSP.Node.prototype.clipPolygons = function( polygons ) {
+	ThreeBSP._Node.prototype.clipPolygons = function( polygons ) {
 		var i, polygon_count,
 			front, back;
 
@@ -313,7 +313,7 @@ window.ThreeBSP = (function() {
 		return front.concat( back );
 	};
 
-	ThreeBSP.Node.prototype.clipTo = function( node ) {
+	ThreeBSP._Node.prototype.clipTo = function( node ) {
 		this.polygons = node.clipPolygons( this.polygons );
 		if ( this.front ) this.front.clipTo( node );
 		if ( this.back ) this.back.clipTo( node );
