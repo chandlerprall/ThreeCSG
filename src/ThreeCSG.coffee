@@ -26,11 +26,11 @@ class window.ThreeBSP extends _ThreeBSP
         treeIsh.geometry
 
     for face, i in geometry.faces
-      faceVertexUvs = geometry.faceVertexUvs?[0][i]
-      faceVertexUvs ?= [new THREE.Vector2(), new THREE.Vector2(),
-                        new THREE.Vector2(), new THREE.Vector2()]
-      polygon = new ThreeBSP.Polygon()
       do (face, i) =>
+        faceVertexUvs = geometry.faceVertexUvs?[0][i]
+        faceVertexUvs ?= [new THREE.Vector2(), new THREE.Vector2(),
+                          new THREE.Vector2(), new THREE.Vector2()]
+        polygon = new ThreeBSP.Polygon()
         for vName, vIndex in ['a', 'b', 'c', 'd']
           if (idx = face[vName])?
             vertex = geometry.vertices[idx]
