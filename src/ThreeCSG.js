@@ -205,29 +205,6 @@ window.ThreeBSP = (function() {
 
 	ThreeBSP._Node = function( polygons ) { return "XXX: Placeholder"; }
 
-	ThreeBSP._Node.prototype.build = function( polygons ) {
-		var i, polygon_count,
-			front = [],
-			back = [];
-
-		if ( !this.divider ) {
-			this.divider = polygons[0].clone();
-		}
-
-		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
-			this.divider.splitPolygon( polygons[i], this.polygons, this.polygons, front, back );
-		}
-
-		if ( front.length > 0 ) {
-			if ( !this.front ) this.front = new ThreeBSP.Node();
-			this.front.build( front );
-		}
-
-		if ( back.length > 0 ) {
-			if ( !this.back ) this.back = new ThreeBSP.Node();
-			this.back.build( back );
-		}
-	};
 	ThreeBSP._Node.prototype.clipPolygons = function( polygons ) {
 		var i, polygon_count,
 			front, back;
