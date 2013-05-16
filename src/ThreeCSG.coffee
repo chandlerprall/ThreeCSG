@@ -78,6 +78,9 @@ class ThreeBSP.Polygon
     {f, b, count} = {f: [], b: [], count: poly.vertices.length}
 
     return [poly] unless @classifySide(poly) == SPANNING
+    # vi and vj are the current and next Vertex
+    # i  and j  are the indexes of vi and vj
+    # ti and tj are the classifications of vi and vj
     for vi, i in poly.vertices
       vj = poly.vertices[(j = (i + 1) % count)]
       [ti, tj] = (@classifyVertex v for v in [vi, vj])
