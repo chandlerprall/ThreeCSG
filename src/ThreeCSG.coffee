@@ -42,6 +42,7 @@ class window.ThreeBSP extends _ThreeBSP
         polygons.push polygon.calculateProperties()
     new ThreeBSP.Node polygons
 
+  # CSG Operations
   subtract: (other) =>
     [us, them] = [@tree.clone(), other.tree.clone()]
     us
