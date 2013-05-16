@@ -49,10 +49,11 @@ class ThreeBSP.Vertex extends THREE.Vector3
   clone: ->
     new ThreeBSP.Vertex @x, @y, @z, @normal.clone(), @uv.clone()
 
-  lerp: (args...) =>
-    @uv.lerp args...
-    @normal.lerp args...
-    super args...
+  lerp: (v, alpha) =>
+    # @uv is a V2 instead of V3, so we perform the lerp by hand
+    @uv.add v.uv.clone().sub(@uv).multiplyScalar alpha
+    @normal.lerp v, alpha
+    super
 
   interpolate: (args...) =>
     @clone().lerp args...
