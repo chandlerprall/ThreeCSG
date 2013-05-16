@@ -62,3 +62,6 @@ class ThreeBSP.Polygon extends ThreeBSP._Polygon
     return BACK     if front == 0 and back > 0
     return COPLANAR if front == back == 0
     return SPANNING
+
+  splitPolygon: (poly, cp_front, cp_back, front, back) =>
+    super
