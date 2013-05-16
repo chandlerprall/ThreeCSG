@@ -203,60 +203,6 @@ window.ThreeBSP = (function() {
 		return mesh;
 	};
 
-	ThreeBSP._Polygon = function (v, n, w) {
-	  // Placeholder
-	};
-
-	ThreeBSP._Polygon.prototype.splitPolygon = function( polygon, coplanar_front, coplanar_back, front, back ) {
-		var classification = this.classifySide( polygon );
-
-		if ( classification === COPLANAR ) {
-
-			( this.normal.dot( polygon.normal ) > 0 ? coplanar_front : coplanar_back ).push( polygon );
-
-		} else if ( classification === FRONT ) {
-
-			front.push( polygon );
-
-		} else if ( classification === BACK ) {
-
-			back.push( polygon );
-
-		} else {
-
-			var vertice_count,
-				i, j, ti, tj, vi, vj,
-				t, v,
-				f = [],
-				b = [];
-
-			for ( i = 0, vertice_count = polygon.vertices.length; i < vertice_count; i++ ) {
-
-				j = (i + 1) % vertice_count;
-				vi = polygon.vertices[i];
-				vj = polygon.vertices[j];
-				ti = this.classifyVertex( vi );
-				tj = this.classifyVertex( vj );
-
-				if ( ti != BACK ) f.push( vi );
-				if ( ti != FRONT ) b.push( vi );
-				if ( (ti | tj) === SPANNING ) {
-					t = ( this.w - this.normal.dot( vi ) ) / this.normal.dot( vj.clone().subtract( vi ) );
-					v = vi.interpolate( vj, t );
-					f.push( v );
-					b.push( v );
-				}
-			}
-
-
-			if ( f.length >= 3 ) front.push( new ThreeBSP.Polygon( f ).calculateProperties() );
-			if ( b.length >= 3 ) back.push( new ThreeBSP.Polygon( b ).calculateProperties() );
-		}
-	};
-
-
-
-
 	ThreeBSP.Node = function( polygons ) {
 		var i, polygon_count,
 			front = [],

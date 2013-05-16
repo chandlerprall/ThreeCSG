@@ -7,6 +7,7 @@ SPANNING = 3
 class ThreeBSP.Vertex extends THREE.Vector3
   constructor: (x, y, z, @normal=THREE.Vector3(), @uv=THREE.Vector2()) ->
     super x, y, z
+    # TODO: Update callsites and remove aliases
     @subtract = @sub
 
   clone: ->
@@ -20,9 +21,11 @@ class ThreeBSP.Vertex extends THREE.Vector3
   interpolate: (args...) =>
     @clone().lerp args...
 
-class ThreeBSP.Polygon extends ThreeBSP._Polygon
+class ThreeBSP.Polygon
   constructor: (@vertices=[], @normal, @w) ->
     @calculateProperties() if @vertices.length
+    # TODO: Update callsites and remove aliases
+    @splitPolygon = @subdivide
 
   calculateProperties: () =>
     [a, b, c] = @vertices
@@ -63,5 +66,39 @@ class ThreeBSP.Polygon extends ThreeBSP._Polygon
     return COPLANAR if front == back == 0
     return SPANNING
 
-  splitPolygon: (poly, cp_front, cp_back, front, back) =>
-    super
+  # Return a list of polygons from `poly` such
+  # that no polygons span the plane defined by
+  # `this`. Should be a list of one or two Polygons
+  tessellate: (poly) =>
+    {f, b, count} = {f: [], b: [], count: poly.vertices.length}
+
+    return [poly] unless @classifySide(poly) == SPANNING
+    for vi, i in poly.vertices
+      vj = poly.vertices[(j = (i + 1) % count)]
+      [ti, tj] = (@classifyVertex v for v in [vi, vj])
+      f.push vi if ti != BACK
+      b.push vi if ti != FRONT
+      if (ti | tj) == SPANNING
+        t = (@w - @normal.dot vi) / @normal.dot vj.clone().sub(vi)
+        v = vi.interpolate vj, t
+        f.push v
+        b.push v
+
+    polys = []
+    polys.push new ThreeBSP.Polygon(f) if f.length >= 3
+    polys.push new ThreeBSP.Polygon(b) if f.length >= 3
+    polys
+
+  subdivide: (polygon, coplanar_front, coplanar_back, front, back) =>
+    for poly in @tessellate polygon
+      side = @classifySide poly
+      switch side
+        when FRONT then front.push poly
+        when BACK  then back.push poly
+        when COPLANAR
+          if @normal.dot(poly.normal) > 0
+            coplanar_front.push poly
+          else
+            coplanar_back.push poly
+        else
+          throw new Error("BUG: Polygon of classification #{side} in subdivision")
