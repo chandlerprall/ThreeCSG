@@ -10,8 +10,8 @@ SPANNING = 3
 # Can be instantiated with THREE.Geometry,
 # THREE.Mesh or a ThreeBSP.Node
 class window.ThreeBSP extends _ThreeBSP
-  constructor: (treeIsh) ->
-    @matrix = new THREE.Matrix4()
+  constructor: (treeIsh, @matrix) ->
+    @matrix ?= new THREE.Matrix4()
     @tree   = @toTree treeIsh
 
   toTree: (treeIsh) =>
@@ -26,17 +26,34 @@ class window.ThreeBSP extends _ThreeBSP
         treeIsh.geometry
 
     for face, i in geometry.faces
-      faceVertexUvs = geometry.faceVertexUvs[0][i]
+      faceVertexUvs = geometry.faceVertexUvs?[0][i]
+      faceVertexUvs ?= [new THREE.Vector2(), new THREE.Vector2(),
+                        new THREE.Vector2(), new THREE.Vector2()]
       polygon = new ThreeBSP.Polygon()
       do (face, i) =>
         for vName, vIndex in ['a', 'b', 'c', 'd']
           if (idx = face[vName])?
             vertex = geometry.vertices[idx]
-            vertex = new ThreeBSP.Vertex vertex.x, vertex.y, vertex.z, face.vertexNormals[0], new THREE.Vector2(faceVertexUvs[vIndex].x, faceVertexUvs[vIndex].y)
+            vertex = new ThreeBSP.Vertex vertex.x, vertex.y, vertex.z,
+              face.vertexNormals[0],
+              new THREE.Vector2(faceVertexUvs[vIndex].x, faceVertexUvs[vIndex].y)
             vertex.applyMatrix4 @matrix
             polygon.vertices.push vertex
         polygons.push polygon.calculateProperties()
     new ThreeBSP.Node polygons
+
+  subtract: (other) =>
+    [us, them] = [@tree.clone(), other.tree.clone()]
+    us
+      .invert()
+      .clipTo(them)
+    them
+      .clipTo(us)
+      .invert()
+      .clipTo(us)
+      .invert()
+    new ThreeBSP us.build(them.allPolygons()).invert(), @matrix
+
 
 ##
 ## ThreeBSP.Vertex
@@ -171,6 +188,7 @@ class ThreeBSP.Node
       if polys.length
         @[side] ?= new ThreeBSP.Node()
         @[side].build polys
+    @
 
   isConvex: (polys) =>
     for inner in polys
@@ -208,3 +226,4 @@ class ThreeBSP.Node
     @polygons = node.clipPolygons @polygons
     @front?.clipTo node
     @back?.clipTo node
+    @
