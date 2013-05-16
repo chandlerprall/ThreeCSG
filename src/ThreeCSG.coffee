@@ -147,7 +147,7 @@ class ThreeBSP.Node extends ThreeBSP._Node
 
   invert: =>
     for poly in @polygons
-      do poly.flip
+      do poly.invert
     for flipper in [@divider, @front, @back]
       flipper?.invert()
     [@front, @back] = [@back, @front]
