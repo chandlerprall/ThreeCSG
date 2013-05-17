@@ -125,9 +125,6 @@ class ThreeBSP.Vertex extends THREE.Vector3
 class ThreeBSP.Polygon
   constructor: (@vertices=[], @normal, @w) ->
     @calculateProperties() if @vertices.length
-    # TODO: Update callsites and remove aliases
-    @splitPolygon = @subdivide
-    @invert = @flip
 
   calculateProperties: () => returning this, =>
     [a, b, c] = @vertices
@@ -143,7 +140,7 @@ class ThreeBSP.Polygon
       @w
     )
 
-  flip: () => returning this, =>
+  invert: () => returning this, =>
     @normal.multiplyScalar -1
     @w *= -1
     @vertices.reverse()
