@@ -1,27 +1,19 @@
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<script type="text/javascript" src="https://raw.github.com/mrdoob/three.js/master/build/three.min.js"></script>
-<script type="text/javascript" src="ThreeCSG.js"></script>
-
-<script type="text/javascript">
 var renderer, scene, camera, light;
 
-window.onload = function() {
-	
+console.log("Demo will load 1 second after the DOM");
+
+document.addEventListener("DOMContentLoaded", setTimeout(function() {
+
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.getElementById('viewport').appendChild(renderer.domElement);
-	
+
 	scene = new THREE.Scene();
-	
+
 	light = new THREE.DirectionalLight( 0xffffff );
 	light.position.set( 1, 1, 1 ).normalize();
 	scene.add( light );
-	
+
 	camera = new THREE.PerspectiveCamera(
 		35,
 		window.innerWidth / window.innerHeight,
@@ -45,9 +37,9 @@ window.onload = function() {
 		var sphere_mesh = new THREE.Mesh( sphere_geometry );
 		sphere_mesh.position.x = -7;
 		var sphere_bsp = new ThreeBSP( sphere_mesh );
-		
+
 		var subtract_bsp = cube_bsp.subtract( sphere_bsp );
-		var result = subtract_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+		var result = subtract_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('assets/texture.png') }) );
 		result.geometry.computeVertexNormals();
 		scene.add( result );
 
@@ -60,35 +52,35 @@ window.onload = function() {
 
 		var sphere_geometry = new THREE.SphereGeometry( 2, 16, 16 );
 		var sphere_bsp = new ThreeBSP( sphere_geometry );
-		
+
 		var cube_geometry = new THREE.CubeGeometry( 7, .5, 3 );
 		var cube_bsp = new ThreeBSP( cube_geometry );
-		
+
 		var union_bsp = sphere_bsp.union( cube_bsp );
-		
-		var result = union_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+
+		var result = union_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('assets/texture.png') }) );
 		result.geometry.computeVertexNormals();
 		scene.add( result );
 
 		console.log( 'Example 2: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
-	
-	
+
+
 	// Example #3 - Sphere (geometry) intersect Sphere (mesh)
 	(function() {
 		var start_time = (new Date()).getTime();
 
 		var sphere_geometry_1 = new THREE.SphereGeometry( 2, 64, 8 );
 		var sphere_bsp_1 = new ThreeBSP( sphere_geometry_1 );
-		
+
 		var sphere_geometry_2 = new THREE.SphereGeometry( 2, 8, 32 );
 		var sphere_mesh_2 = new THREE.Mesh( sphere_geometry_2 );
 		sphere_mesh_2.position.x = 2;
 		var sphere_bsp_2 = new ThreeBSP( sphere_mesh_2 );
-		
+
 		var intersect_bsp = sphere_bsp_1.intersect( sphere_bsp_2 );
-		
-		var result = intersect_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+
+		var result = intersect_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('assets/texture.png') }) );
 		result.position.x = 6;
 		result.geometry.computeVertexNormals();
 		scene.add( result );
@@ -100,24 +92,4 @@ window.onload = function() {
 		requestAnimationFrame( render );
 		renderer.render(scene, camera);
 	})();
-}
-
-</script>
-
-<style type="text/css">
-	html, body {
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-	}
-</style>
-
-</head>
-
-<body>
-    
-	<div id="viewport"></div>
-	
-</body>
-
-</html>
+}, 1000))
