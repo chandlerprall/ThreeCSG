@@ -9,7 +9,7 @@ SPANNING = 3
 #
 # Can be instantiated with THREE.Geometry,
 # THREE.Mesh or a ThreeBSP.Node
-class window.ThreeBSP extends _ThreeBSP
+class window.ThreeBSP
   constructor: (treeIsh, @matrix) ->
     @matrix ?= new THREE.Matrix4()
     @tree   = @toTree treeIsh
@@ -42,9 +42,15 @@ class window.ThreeBSP extends _ThreeBSP
         polygons.push polygon.calculateProperties()
     new ThreeBSP.Node polygons
 
-  toGeometry: () =>
-    Types = {3: THREE.Face3, 4: THREE.Face4}
+  # Converters/Exporters
+  toMesh: (material=new THREE.MeshNormalMaterial()) =>
+    geometry = @toGeometry()
+    mesh = new THREE.Mesh geometry, material
+    mesh.position.getPositionFromMatrix @matrix
+    mesh.rotation.setEulerFromRotationMatrix @matrix
+    mesh
 
+  toGeometry: () =>
     matrix   = new THREE.Matrix4().getInverse @matrix
     geometry = new THREE.Geometry()
     polygons = @tree.allPolygons()
@@ -52,20 +58,13 @@ class window.ThreeBSP extends _ThreeBSP
     for polygon in polygons
       do (polygon) =>
         polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
+        for idx in [2...polyVerts.length]
+          verts = [polyVerts[0], polyVerts[idx-1], polyVerts[idx]]
+          vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in verts)
 
-        # TODO:
-        # The operations results in some complex polygons
-        # we need to tessellate them before adding them
-        # to the geometry, but for now, LOSE DATA!
-        if polyVerts.length > 4
-          polyVerts = polyVerts.slice(0, 4)
-        # XXX: THis is here so it's trimmed to the size of the new face
-        vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in polyVerts)
-
-        Face = Types[polyVerts.length]
-        face = new Face (geometry.vertices.push(v) - 1 for v in polyVerts)..., polygon.normal.clone()
-        geometry.faces.push face
-        geometry.faceVertexUvs[0].push vertUvs
+          face = new THREE.Face3 (geometry.vertices.push(v) - 1 for v in verts)..., polygon.normal.clone()
+          geometry.faces.push face
+          geometry.faceVertexUvs[0].push vertUvs
     geometry
 
   # CSG Operations
