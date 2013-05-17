@@ -42,6 +42,32 @@ class window.ThreeBSP extends _ThreeBSP
         polygons.push polygon.calculateProperties()
     new ThreeBSP.Node polygons
 
+  toGeometry: () =>
+    Types = {3: THREE.Face3, 4: THREE.Face4}
+
+    matrix   = new THREE.Matrix4().getInverse @matrix
+    geometry = new THREE.Geometry()
+    polygons = @tree.allPolygons()
+
+    for polygon in polygons
+      do (polygon) =>
+        polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
+
+        # TODO:
+        # The operations results in some complex polygons
+        # we need to tessellate them before adding them
+        # to the geometry, but for now, LOSE DATA!
+        if polyVerts.length > 4
+          polyVerts = polyVerts.slice(0, 4)
+        # XXX: THis is here so it's trimmed to the size of the new face
+        vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in polyVerts)
+
+        Face = Types[polyVerts.length]
+        face = new Face (geometry.vertices.push(v) - 1 for v in polyVerts)..., polygon.normal.clone()
+        geometry.faces.push face
+        geometry.faceVertexUvs[0].push vertUvs
+    geometry
+
   # CSG Operations
   subtract: (other) =>
     [us, them] = [@tree.clone(), other.tree.clone()]
