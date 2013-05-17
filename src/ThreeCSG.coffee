@@ -56,15 +56,14 @@ class window.ThreeBSP
     polygons = @tree.allPolygons()
 
     for polygon in polygons
-      do (polygon) =>
-        polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
-        for idx in [2...polyVerts.length]
-          verts = [polyVerts[0], polyVerts[idx-1], polyVerts[idx]]
-          vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in verts)
+      polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
+      for idx in [2...polyVerts.length]
+        verts = [polyVerts[0], polyVerts[idx-1], polyVerts[idx]]
+        vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in verts)
 
-          face = new THREE.Face3 (geometry.vertices.push(v) - 1 for v in verts)..., polygon.normal.clone()
-          geometry.faces.push face
-          geometry.faceVertexUvs[0].push vertUvs
+        face = new THREE.Face3 (geometry.vertices.push(v) - 1 for v in verts)..., polygon.normal.clone()
+        geometry.faces.push face
+        geometry.faceVertexUvs[0].push vertUvs
     geometry
 
   # CSG Operations
