@@ -108,8 +108,6 @@ class window.ThreeBSP
 class ThreeBSP.Vertex extends THREE.Vector3
   constructor: (x, y, z, @normal=new THREE.Vector3(), @uv=new THREE.Vector2()) ->
     super x, y, z
-    # TODO: Update callsites and remove aliases
-    @subtract = @sub
 
   clone: ->
     new ThreeBSP.Vertex @x, @y, @z, @normal.clone(), @uv.clone()
@@ -134,7 +132,7 @@ class ThreeBSP.Polygon
   calculateProperties: () => returning this, =>
     [a, b, c] = @vertices
     @normal = b.clone().sub(a).cross(
-      c.clone().subtract a
+      c.clone().sub a
     ).normalize()
     @w = @normal.clone().dot a
 
