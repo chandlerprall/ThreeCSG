@@ -4,6 +4,14 @@ FRONT = 1
 BACK = 2
 SPANNING = 3
 
+# Call the callback with no arguments
+# then return the first value.
+# Used to construct chainable
+# callbacks
+returning = (value, fn) ->
+  fn()
+  value
+
 ##
 ## ThreBSP Driver
 #
@@ -45,26 +53,23 @@ class window.ThreeBSP
   # Converters/Exporters
   toMesh: (material=new THREE.MeshNormalMaterial()) =>
     geometry = @toGeometry()
-    mesh = new THREE.Mesh geometry, material
-    mesh.position.getPositionFromMatrix @matrix
-    mesh.rotation.setEulerFromRotationMatrix @matrix
-    mesh
+    returning (mesh = new THREE.Mesh geometry, material), =>
+      mesh.position.getPositionFromMatrix @matrix
+      mesh.rotation.setEulerFromRotationMatrix @matrix
 
   toGeometry: () =>
-    matrix   = new THREE.Matrix4().getInverse @matrix
-    geometry = new THREE.Geometry()
-    polygons = @tree.allPolygons()
+    matrix = new THREE.Matrix4().getInverse @matrix
 
-    for polygon in polygons
-      polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
-      for idx in [2...polyVerts.length]
-        verts = [polyVerts[0], polyVerts[idx-1], polyVerts[idx]]
-        vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in verts)
+    returning (geometry = new THREE.Geometry()), =>
+      for polygon in @tree.allPolygons()
+        polyVerts = (v.clone().applyMatrix4(matrix) for v in polygon.vertices)
+        for idx in [2...polyVerts.length]
+          verts = [polyVerts[0], polyVerts[idx-1], polyVerts[idx]]
+          vertUvs = (new THREE.Vector2(v.uv?.x, v.uv?.y) for v in verts)
 
-        face = new THREE.Face3 (geometry.vertices.push(v) - 1 for v in verts)..., polygon.normal.clone()
-        geometry.faces.push face
-        geometry.faceVertexUvs[0].push vertUvs
-    geometry
+          face = new THREE.Face3 (geometry.vertices.push(v) - 1 for v in verts)..., polygon.normal.clone()
+          geometry.faces.push face
+          geometry.faceVertexUvs[0].push vertUvs
 
   # CSG Operations
   subtract: (other) =>
@@ -109,11 +114,10 @@ class ThreeBSP.Vertex extends THREE.Vector3
   clone: ->
     new ThreeBSP.Vertex @x, @y, @z, @normal.clone(), @uv.clone()
 
-  lerp: (v, alpha) =>
+  lerp: (v, alpha) => returning super, =>
     # @uv is a V2 instead of V3, so we perform the lerp by hand
     @uv.add v.uv.clone().sub(@uv).multiplyScalar alpha
     @normal.lerp v, alpha
-    super
 
   interpolate: (args...) =>
     @clone().lerp args...
@@ -127,13 +131,12 @@ class ThreeBSP.Polygon
     @splitPolygon = @subdivide
     @invert = @flip
 
-  calculateProperties: () =>
+  calculateProperties: () => returning this, =>
     [a, b, c] = @vertices
     @normal = b.clone().sub(a).cross(
       c.clone().subtract a
     ).normalize()
     @w = @normal.clone().dot a
-    @
 
   clone: () =>
     new ThreeBSP.Polygon(
@@ -142,11 +145,10 @@ class ThreeBSP.Polygon
       @w
     )
 
-  flip: () =>
+  flip: () => returning this, =>
     @normal.multiplyScalar -1
     @w *= -1
     @vertices.reverse()
-    @
 
   classifyVertex: (vertex) =>
     side = @normal.dot(vertex) - @w
@@ -187,10 +189,10 @@ class ThreeBSP.Polygon
         f.push v
         b.push v
 
-    polys = []
-    polys.push new ThreeBSP.Polygon(f) if f.length >= 3
-    polys.push new ThreeBSP.Polygon(b) if b.length >= 3
-    polys
+    returning (polys = []), =>
+      polys.push new ThreeBSP.Polygon(f) if f.length >= 3
+      polys.push new ThreeBSP.Polygon(b) if b.length >= 3
+
 
   subdivide: (polygon, coplanar_front, coplanar_back, front, back) =>
     for poly in @tessellate polygon
@@ -209,19 +211,17 @@ class ThreeBSP.Polygon
 ##
 ## ThreeBSP.Node
 class ThreeBSP.Node
-  clone: =>
-    node = new ThreeBSP.Node()
+  clone: => returning (node = new ThreeBSP.Node()), =>
     node.divider  = @divider?.clone()
     node.polygons = (p.clone() for p in @polygons)
     node.front    = @front?.clone()
     node.back     = @back?.clone()
-    node
 
   constructor: (polygons) ->
     @polygons = []
     @build(polygons) if polygons? and polygons.length
 
-  build: (polygons) =>
+  build: (polygons) => returning this, =>
     sides = front: [], back: []
     @divider ?= polygons[0].clone()
     for poly in polygons
@@ -231,7 +231,6 @@ class ThreeBSP.Node
       if polys.length
         @[side] ?= new ThreeBSP.Node()
         @[side].build polys
-    @
 
   isConvex: (polys) =>
     for inner in polys
@@ -244,13 +243,12 @@ class ThreeBSP.Node
       .concat(@front?.allPolygons() or [])
       .concat(@back?.allPolygons() or [])
 
-  invert: =>
+  invert: => returning this, =>
     for poly in @polygons
       do poly.invert
     for flipper in [@divider, @front, @back]
       flipper?.invert()
     [@front, @back] = [@back, @front]
-    @
 
   clipPolygons: (polygons) =>
     return polygons.slice() unless @divider
@@ -265,8 +263,7 @@ class ThreeBSP.Node
 
     return front.concat if @back then back else []
 
-  clipTo: (node) =>
+  clipTo: (node) => returning this, =>
     @polygons = node.clipPolygons @polygons
     @front?.clipTo node
     @back?.clipTo node
-    @
