@@ -204,7 +204,7 @@ window.ThreeBSP = (function() {
 		var geometry = this.toGeometry(),
 			mesh = new THREE.Mesh( geometry, material );
 		
-		mesh.position.getPositionFromMatrix( this.matrix );
+		mesh.position.setFromMatrixPosition( this.matrix );
 		mesh.rotation.setFromRotationMatrix( this.matrix );
 		
 		return mesh;
