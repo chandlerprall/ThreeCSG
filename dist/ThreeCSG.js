@@ -1,4 +1,7 @@
-'use strict';
+/* jshint -W097 */
+/* globals THREE, window */
+"use strict";
+
 window.ThreeBSP = (function() {
 	
 	var ThreeBSP,
@@ -17,7 +20,7 @@ window.ThreeBSP = (function() {
 			tree;
 	
 		if ( geometry instanceof THREE.Geometry ) {
-			this.matrix = new THREE.Matrix4;
+			this.matrix = new THREE.Matrix4();
 		} else if ( geometry instanceof THREE.Mesh ) {
 			// #todo: add hierarchy support
 			geometry.updateMatrix();
@@ -25,7 +28,7 @@ window.ThreeBSP = (function() {
 			geometry = geometry.geometry;
 		} else if ( geometry instanceof ThreeBSP.Node ) {
 			this.tree = geometry;
-			this.matrix = new THREE.Matrix4;
+			this.matrix = new THREE.Matrix4();
 			return this;
 		} else {
 			throw 'ThreeBSP: Given geometry is unsupported';
@@ -34,7 +37,7 @@ window.ThreeBSP = (function() {
 		for ( i = 0, _length_i = geometry.faces.length; i < _length_i; i++ ) {
 			face = geometry.faces[i];
 			faceVertexUvs = geometry.faceVertexUvs[0][i];
-			polygon = new ThreeBSP.Polygon;
+			polygon = new ThreeBSP.Polygon();
 			
 			if ( face instanceof THREE.Face3 ) {
 				vertex = geometry.vertices[ face.a ];
@@ -84,7 +87,7 @@ window.ThreeBSP = (function() {
 			
 			polygon.calculateProperties();
 			polygons.push( polygon );
-		};
+		}
 	
 		this.tree = new ThreeBSP.Node( polygons );
 	};
@@ -238,11 +241,11 @@ window.ThreeBSP = (function() {
 	};
 	ThreeBSP.Polygon.prototype.clone = function() {
 		var i, vertice_count,
-			polygon = new ThreeBSP.Polygon;
+			polygon = new ThreeBSP.Polygon();
 		
 		for ( i = 0, vertice_count = this.vertices.length; i < vertice_count; i++ ) {
 			polygon.vertices.push( this.vertices[i].clone() );
-		};
+		}
 		polygon.calculateProperties();
 		
 		return polygon;
@@ -256,7 +259,7 @@ window.ThreeBSP = (function() {
 		
 		for ( i = this.vertices.length - 1; i >= 0; i-- ) {
 			vertices.push( this.vertices[i] );
-		};
+		}
 		this.vertices = vertices;
 		
 		return this;
@@ -349,8 +352,8 @@ window.ThreeBSP = (function() {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.normal = normal || new THREE.Vector3;
-		this.uv = uv || new THREE.Vector2;
+		this.normal = normal || new THREE.Vector3();
+		this.uv = uv || new THREE.Vector2();
 	};
 	ThreeBSP.Vertex.prototype.clone = function() {
 		return new ThreeBSP.Vertex( this.x, this.y, this.z, this.normal.clone(), this.uv.clone() );
@@ -428,7 +431,7 @@ window.ThreeBSP = (function() {
 
 		return this;
 
-	}
+	};
 	
 	
 	ThreeBSP.Node = function( polygons ) {
@@ -528,7 +531,8 @@ window.ThreeBSP = (function() {
 
 		if ( !this.divider ) return polygons.slice();
 		
-		front = [], back = [];
+		front = []; 
+                back = [];
 		
 		for ( i = 0, polygon_count = polygons.length; i < polygon_count; i++ ) {
 			this.divider.splitPolygon( polygons[i], front, back, front, back );
