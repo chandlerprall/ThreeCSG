@@ -21,12 +21,14 @@ module.exports = function(grunt) {
       }
     },
     clean: {
-      dist: [ 'dist/**/*' ]
+      dist: [ 'dist/**/*' ],
+      lib: [ 'examples/lib/**/*' ]
     },
     copy: {
       dist: {
         files: [
-          { cwd: 'src', src: ['**/*'], dest: 'dist/', expand: true }
+          { cwd: 'src', src: ['**/*'], dest: 'dist/', expand: true },
+          { cwd: 'src', src: ['**/*'], dest: 'examples/lib', expand: true }
         ]
       }
     },
