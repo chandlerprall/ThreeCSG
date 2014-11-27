@@ -1,0 +1,27 @@
+{
+  "name": "ThreeCSG",
+  "main": "dist/ThreeCSG.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/chandlerprall/ThreeCSG",
+  "authors": [
+    "Chandler Prall"
+  ],
+  "description": "CSG plugin for Three.js",
+  "keywords": [
+    "threejs",
+    "3d",
+    "csg",
+    "webgl"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "threejs": "*"
+  }
+}
