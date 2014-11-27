@@ -1,7 +1,7 @@
 {
   "name": "ThreeCSG",
   "main": "dist/ThreeCSG.js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/chandlerprall/ThreeCSG",
   "authors": [
     "Chandler Prall"
