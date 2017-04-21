@@ -4,7 +4,7 @@ const EPSILON = 1e-5,
     FRONT = 1,
     BACK = 2,
     SPANNING = 3;
-export default class ThreeBSP {
+class ThreeBSP {
     constructor(geometry) {
         // Convert THREE.Geometry to ThreeBSP
         var i, _length_i,
@@ -205,7 +205,7 @@ export default class ThreeBSP {
         return geometry;
     }
 
-    toMesh = function (material) {
+    toMesh (material) {
         var geometry = this.toGeometry(),
             mesh = new THREE.Mesh(geometry, material);
 
