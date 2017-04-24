@@ -9,7 +9,6 @@
 
 <script type="text/javascript">
 var renderer, scene, camera, light;
-
 window.onload = function() {
 	
 	renderer = new THREE.WebGLRenderer({antialias: true});
@@ -31,33 +30,31 @@ window.onload = function() {
 	camera.position.set( 5, 5, 15 );
 	camera.lookAt( scene.position );
 	scene.add( camera );
-
 	// Example #1 - Cube (mesh) subtract Sphere (mesh)
 	(function() {
 		var start_time = (new Date()).getTime();
-
 		var cube_geometry = new THREE.CubeGeometry( 3, 3, 3 );
 		var cube_mesh = new THREE.Mesh( cube_geometry );
 		cube_mesh.position.x = -7;
 		var cube_bsp = new ThreeBSP( cube_mesh );
-
 		var sphere_geometry = new THREE.SphereGeometry( 1.8, 32, 32 );
 		var sphere_mesh = new THREE.Mesh( sphere_geometry );
 		sphere_mesh.position.x = -7;
 		var sphere_bsp = new ThreeBSP( sphere_mesh );
 		
 		var subtract_bsp = cube_bsp.subtract( sphere_bsp );
-		var result = subtract_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+		var result = subtract_bsp.toMesh( new THREE.MeshLambertMaterial({
+			shading: THREE.SmoothShading,
+			map: new THREE.TextureLoader().load('texture.png')
+		}));
+
 		result.geometry.computeVertexNormals();
 		scene.add( result );
-
 		console.log( 'Example 1: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
-
 	// Example #2 - Sphere (geometry) union Cube (geometry)
 	(function() {
 		var start_time = (new Date()).getTime();
-
 		var sphere_geometry = new THREE.SphereGeometry( 2, 16, 16 );
 		var sphere_bsp = new ThreeBSP( sphere_geometry );
 		
@@ -66,10 +63,13 @@ window.onload = function() {
 		
 		var union_bsp = sphere_bsp.union( cube_bsp );
 		
-		var result = union_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+		var result = union_bsp.toMesh( new THREE.MeshLambertMaterial({
+			shading: THREE.SmoothShading,
+			map: new THREE.TextureLoader().load('texture.png')
+		}));
+
 		result.geometry.computeVertexNormals();
 		scene.add( result );
-
 		console.log( 'Example 2: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
 	
@@ -77,7 +77,6 @@ window.onload = function() {
 	// Example #3 - Sphere (geometry) intersect Sphere (mesh)
 	(function() {
 		var start_time = (new Date()).getTime();
-
 		var sphere_geometry_1 = new THREE.SphereGeometry( 2, 64, 8 );
 		var sphere_bsp_1 = new ThreeBSP( sphere_geometry_1 );
 		
@@ -88,20 +87,21 @@ window.onload = function() {
 		
 		var intersect_bsp = sphere_bsp_1.intersect( sphere_bsp_2 );
 		
-		var result = intersect_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+		var result = intersect_bsp.toMesh( new THREE.MeshLambertMaterial({
+			shading: THREE.SmoothShading,
+			map: new THREE.TextureLoader().load('texture.png')
+		}));
+
 		result.position.x = 6;
 		result.geometry.computeVertexNormals();
 		scene.add( result );
-
 		console.log( 'Example 3: ' + ((new Date()).getTime() - start_time) + 'ms' );
 	})();
-
 	(function render() {
 		requestAnimationFrame( render );
 		renderer.render(scene, camera);
 	})();
 }
-
 </script>
 
 <style type="text/css">

@@ -1,10 +1,12 @@
-'use strict';
+/*jshint esversion: 6 */
+
 const EPSILON = 1e-5,
     COPLANAR = 0,
     FRONT = 1,
     BACK = 2,
     SPANNING = 3;
-export default class ThreeBSP {
+
+export default  class ThreeBSP {
     constructor(geometry) {
         // Convert THREE.Geometry to ThreeBSP
         var i, _length_i,
@@ -17,7 +19,7 @@ export default class ThreeBSP {
         this.Vertex = Vertex;
         this.Node = Node;
         if (geometry instanceof THREE.Geometry) {
-            this.matrix = new THREE.Matrix4;
+            this.matrix = new THREE.Matrix4();
         } else if (geometry instanceof THREE.Mesh) {
             // #todo: add hierarchy support
             geometry.updateMatrix();
@@ -25,7 +27,7 @@ export default class ThreeBSP {
             geometry = geometry.geometry;
         } else if (geometry instanceof Node) {
             this.tree = geometry;
-            this.matrix = new THREE.Matrix4;
+            this.matrix = new THREE.Matrix4();
             return this;
         } else {
             throw 'ThreeBSP: Given geometry is unsupported';
@@ -34,7 +36,7 @@ export default class ThreeBSP {
         for (i = 0, _length_i = geometry.faces.length; i < _length_i; i++) {
             face = geometry.faces[i];
             faceVertexUvs = geometry.faceVertexUvs[0][i];
-            polygon = new Polygon;
+            polygon = new Polygon();
 
             if (face instanceof THREE.Face3) {
                 vertex = geometry.vertices[face.a];
@@ -205,7 +207,7 @@ export default class ThreeBSP {
         return geometry;
     }
 
-    toMesh = function (material) {
+    toMesh (material) {
         var geometry = this.toGeometry(),
             mesh = new THREE.Mesh(geometry, material);
 
@@ -213,7 +215,7 @@ export default class ThreeBSP {
         mesh.rotation.setFromRotationMatrix(this.matrix);
 
         return mesh;
-    };
+    }
 }
 class Polygon {
     constructor(vertices, normal, w) {
@@ -241,11 +243,11 @@ class Polygon {
         this.w = this.normal.clone().dot(a);
 
         return this;
-    };
+    }
 
     clone() {
         var i, vertice_count,
-            polygon = new Polygon;
+            polygon = new Polygon();
 
         for (i = 0, vertice_count = this.vertices.length; i < vertice_count; i++) {
             polygon.vertices.push(this.vertices[i].clone());
@@ -267,7 +269,7 @@ class Polygon {
         this.vertices = vertices;
 
         return this;
-    };
+    }
 
     classifyVertex(vertex) {
         var side_value = this.normal.dot(vertex) - this.w;
@@ -360,34 +362,34 @@ class Vertex {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.normal = normal || new THREE.Vector3;
-        this.uv = uv || new THREE.Vector2;
-    };
+        this.normal = normal || new THREE.Vector3();
+        this.uv = uv || new THREE.Vector2();
+    }
 
     clone() {
         return new Vertex(this.x, this.y, this.z, this.normal.clone(), this.uv.clone());
-    };
+    }
 
     add(vertex) {
         this.x += vertex.x;
         this.y += vertex.y;
         this.z += vertex.z;
         return this;
-    };
+    }
 
     subtract(vertex) {
         this.x -= vertex.x;
         this.y -= vertex.y;
         this.z -= vertex.z;
         return this;
-    };
+    }
 
     multiplyScalar(scalar) {
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
         return this;
-    };
+    }
 
     cross(vertex) {
         var x = this.x,
@@ -399,7 +401,7 @@ class Vertex {
         this.z = x * vertex.y - y * vertex.x;
 
         return this;
-    };
+    }
 
     normalize() {
         var length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
@@ -409,11 +411,11 @@ class Vertex {
         this.z /= length;
 
         return this;
-    };
+    }
 
     dot(vertex) {
         return this.x * vertex.x + this.y * vertex.y + this.z * vertex.z;
-    };
+    }
 
     lerp(a, t) {
         this.add(
@@ -429,11 +431,11 @@ class Vertex {
         );
 
         return this;
-    };
+    }
 
     interpolate(other, t) {
         return this.clone().lerp(other, t);
-    };
+    }
 
     applyMatrix4(m) {
 
@@ -511,14 +513,14 @@ class Node {
             if (!this.back) this.back = new Node();
             this.back.build(back);
         }
-    };
+    }
 
     allPolygons() {
         var polygons = this.polygons.slice();
         if (this.front) polygons = polygons.concat(this.front.allPolygons());
         if (this.back) polygons = polygons.concat(this.back.allPolygons());
         return polygons;
-    };
+    }
 
     clone() {
         var node = new Node();
@@ -531,7 +533,7 @@ class Node {
         node.back = this.back && this.back.clone();
 
         return node;
-    };
+    }
 
     invert() {
         var i, polygon_count, temp;
@@ -542,14 +544,15 @@ class Node {
 
         this.divider.flip();
         if (this.front) this.front.invert();
-        if (this.back) this.back.invert();
+        if (this.back) this.back.inver'use strict';
+t();
 
         temp = this.front;
         this.front = this.back;
         this.back = temp;
 
         return this;
-    };
+    }
 
     clipPolygons(polygons) {
         var i, polygon_count,
@@ -557,7 +560,8 @@ class Node {
 
         if (!this.divider) return polygons.slice();
 
-        front = [], back = [];
+        front = [];
+        back = [];
 
         for (i = 0, polygon_count = polygons.length; i < polygon_count; i++) {
             this.divider.splitPolygon(polygons[i], front, back, front, back);
@@ -568,13 +572,13 @@ class Node {
         else back = [];
 
         return front.concat(back);
-    };
+    }
 
     clipTo(node) {
         this.polygons = node.clipPolygons(this.polygons);
         if (this.front) this.front.clipTo(node);
         if (this.back) this.back.clipTo(node);
-    };
+    }
 }
 
-window['ThreeBSP'] = ThreeBSP;
+window.ThreeBSP = ThreeBSP;
