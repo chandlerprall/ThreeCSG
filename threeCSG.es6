@@ -12,8 +12,7 @@ export default  class ThreeBSP {
         var i, _length_i,
             face, vertex, faceVertexUvs, uvs,
             polygon,
-            polygons = [],
-            tree;
+            polygons = [];
 
         this.Polygon = Polygon;
         this.Vertex = Vertex;
@@ -544,8 +543,7 @@ class Node {
 
         this.divider.flip();
         if (this.front) this.front.invert();
-        if (this.back) this.back.inver'use strict';
-t();
+        if (this.back) this.back.invert();
 
         temp = this.front;
         this.front = this.back;
