@@ -544,8 +544,7 @@ class Node {
 
         this.divider.flip();
         if (this.front) this.front.invert();
-        if (this.back) this.back.inver'use strict';
-t();
+        if (this.back) this.back.invert();
 
         temp = this.front;
         this.front = this.back;
