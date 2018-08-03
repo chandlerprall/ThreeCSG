@@ -288,15 +288,15 @@ window.ThreeBSP = (function() {
 			}
 		}
 		
-		if ( num_positive > 0 && num_negative === 0 ) {
-			return FRONT;
-		} else if ( num_positive === 0 && num_negative > 0 ) {
-			return BACK;
-		} else if ( num_positive === 0 && num_negative === 0 ) {
-			return COPLANAR;
-		} else {
-			return SPANNING;
-		}
+        if ( num_positive === vertice_count && num_negative === 0 ) {
+            return FRONT;
+        } else if ( num_positive === 0 && num_negative === vertice_count ) {
+            return BACK;
+        } else if ( num_positive > 0 && num_negative > 0 ) {
+            return SPANNING;
+        } else {
+            return COPLANAR;
+        }
 	};
 	ThreeBSP.Polygon.prototype.splitPolygon = function( polygon, coplanar_front, coplanar_back, front, back ) {
 		var classification = this.classifySide( polygon );
