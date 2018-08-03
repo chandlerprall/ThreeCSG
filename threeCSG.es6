@@ -299,14 +299,14 @@ class Polygon {
             }
         }
 
-        if (num_positive > 0 && num_negative === 0) {
+        if (num_positive === vertice_count && num_negative === 0) {
             return FRONT;
-        } else if (num_positive === 0 && num_negative > 0) {
+        } else if (num_positive === 0 && num_negative === vertice_count) {
             return BACK;
-        } else if (num_positive === 0 && num_negative === 0) {
-            return COPLANAR;
-        } else {
+        } else if (num_positive > 0 && num_negative > 0) {
             return SPANNING;
+        } else {
+            return COPLANAR;
         }
     }
 
