@@ -14,25 +14,27 @@
     </head>
     <body>
         <script type="text/javascript" src="../three-csg.js"></script>
+        <script type="text/javascript" src="./OrbitControls.js"></script>
         <script type="text/javascript">
             const renderer = new THREE.WebGLRenderer({antialias: true});
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
             const scene = new THREE.Scene();
 
-			const normalMaterial = new THREE.MeshNormalMaterial();
-			const wireMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+            const normalMaterial = new THREE.MeshNormalMaterial();
+            const wireMaterial = new THREE.MeshBasicMaterial({wireframe: true});
 
-			const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 1, 100);
-			camera.position.set(0, 2, -5);
-			camera.lookAt(scene.position);
+            const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 1, 100);
+            camera.position.set(0, 2, -5);
+            camera.lookAt(scene.position);
+            var controls = new THREE.OrbitControls(camera);
 
             const box1Geometry = new THREE.BoxGeometry(0.25, 0.5, 0.25);
             const box1 = new THREE.Mesh(box1Geometry, wireMaterial);
             box1.position.set(0.2, 0.25, 0.2);
-			box1.quaternion.set(-0.3, 0.5, -0.1, 1).normalize();
+            box1.quaternion.set(-0.3, 0.5, -0.1, 1).normalize();
 
             const box2Geometry = new THREE.BoxGeometry(0.5, 1, 0.5);
             const box2 = new THREE.Mesh(box2Geometry, wireMaterial);
@@ -42,15 +44,26 @@
             scene.add(box1);
             scene.add(box2);
 
-			renderer.render(scene, camera);
-
+            console.log(`Faces Before Intersect: ${box1.geometry.faces.length + box2.geometry.faces.length}`);
+            console.time("intersect");
             const box3 = threecsg.intersect(box1, box2, normalMaterial);
+            console.log(`Faces After Intersect: ${box3.geometry.faces.length}`);
+            console.timeEnd("intersect");
             scene.add(box3);
             const box3w = box3.clone();
             box3w.material = wireMaterial;
             scene.add(box3w);
 
-            renderer.render(scene, camera);
+            animate();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                render();
+            }
+            function render() {
+                renderer.render(scene, camera);
+            }
         </script>
     </body>
 </html>

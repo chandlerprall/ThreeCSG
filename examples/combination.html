@@ -14,10 +14,11 @@
     </head>
     <body>
         <script type="text/javascript" src="../three-csg.js"></script>
+        <script type="text/javascript" src="./OrbitControls.js"></script>
         <script type="text/javascript">
             const renderer = new THREE.WebGLRenderer({antialias: true});
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
             const scene = new THREE.Scene();
@@ -25,33 +26,52 @@
             const wireMaterial = new THREE.MeshBasicMaterial({wireframe: true});
             const normalMaterial = new THREE.MeshNormalMaterial();
 
-			const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 1, 100);
-			camera.position.set(-6, 4, 6);
-			camera.lookAt(scene.position);
+            const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 1, 100);
+            camera.position.set(-6, 4, 6);
+            camera.lookAt(scene.position);
+            var controls = new THREE.OrbitControls(camera);
 
-			function makeConcave() {
-				const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-				const box1 = new THREE.Mesh(boxGeometry, wireMaterial);
-				const box2 = new THREE.Mesh(boxGeometry, wireMaterial);
-				box1.quaternion.set(0.8, 0, 1.5, 1).normalize();
-				box1.scale.set(0.7, 0.7, 0.7);
-				box1.position.set(-0.2, 0.3, 0);
+            function makeConcave() {
+                const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const box1 = new THREE.Mesh(boxGeometry, wireMaterial);
+                const box2 = new THREE.Mesh(boxGeometry, wireMaterial);
+                box1.quaternion.set(0.8, 0, 1.5, 1).normalize();
+                box1.scale.set(0.7, 0.7, 0.7);
+                box1.position.set(-0.2, 0.3, 0);
 
-                return threecsg.subtract(box2, box1, normalMaterial);
+                console.log(`Faces Before Subtract: ${box1.geometry.faces.length + box2.geometry.faces.length}`);
+                console.time("subtract");
+                const concave = threecsg.subtract(box2, box1, normalMaterial);
+                console.timeEnd("subtract");
+                console.log(`Faces After Subtract: ${concave.geometry.faces.length}`);
+                return concave
             }
             const concave = makeConcave();
 
-			const sphereGeometry = new THREE.SphereGeometry(0.5, 12, 12);
-			const sphere = new THREE.Mesh(sphereGeometry, wireMaterial);
-			sphere.position.set(0, 0.5, 0);
+            const sphereGeometry = new THREE.SphereGeometry(0.5, 12, 12);
+            const sphere = new THREE.Mesh(sphereGeometry, wireMaterial);
+            sphere.position.set(0, 0.5, 0);
 
-			const intersectmesh = threecsg.intersect(concave, sphere, normalMaterial);
-			const intersectmeshw = intersectmesh.clone();
-			intersectmeshw.material = wireMaterial;
-			scene.add(intersectmesh);
-			scene.add(intersectmeshw);
+            console.log(`Faces Before Intersect: ${concave.geometry.faces.length + sphere.geometry.faces.length}`);
+            console.time("intersect");
+            const intersectmesh = threecsg.intersect(concave, sphere, normalMaterial);
+            console.timeEnd("intersect");
+            console.log(`Faces After Intersect: ${intersectmesh.geometry.faces.length}`);
+            const intersectmeshw = intersectmesh.clone();
+            intersectmeshw.material = wireMaterial;
+            scene.add(intersectmesh);
+            scene.add(intersectmeshw);
 
-            renderer.render(scene, camera);
+            animate();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                render();
+            }
+            function render() {
+                renderer.render(scene, camera);
+            }
         </script>
     </body>
 </html>
