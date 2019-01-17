@@ -1,5 +1,5 @@
 {
-  "name": "threecsg",
+  "name": "three-csg",
   "version": "1.0.0-alpha.1",
   "description": "Constructive Solid Geometry for Three.JS",
   "main": "lib",
@@ -8,7 +8,7 @@
   "repository": "https://github.com/chandlerprall/ThreeCSG/",
   "scripts": {
     "build": "tsc",
-    "postbuild": "rollup lib/index.js --file threecsg.js --format umd --globals three:THREE --name threecsg",
+    "postbuild": "rollup lib/index.js --file three-csg.js --format umd --globals three:THREE --name threecsg",
     "test": "jest"
   },
   "jest": {
