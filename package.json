@@ -1,0 +1,44 @@
+{
+  "name": "threecsg",
+  "version": "1.0.0-alpha.1",
+  "description": "Constructive Solid Geometry for Three.JS",
+  "main": "lib",
+  "author": "Chandler Prall <chandler.prall@gmail.com>",
+  "license": "Zlib",
+  "repository": "https://github.com/chandlerprall/ThreeCSG/",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "rollup lib/index.js --file threecsg.js --format umd --globals three:THREE --name threecsg",
+    "test": "jest"
+  },
+  "jest": {
+    "rootDir": ".",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.12",
+    "@types/three": "^0.93.15",
+    "jest": "^23.6.0",
+    "rollup": "^1.1.0",
+    "three": "^0.100.0",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.2"
+  },
+  "peerDependencies": {
+    "three": "^0.100.0"
+  }
+}
