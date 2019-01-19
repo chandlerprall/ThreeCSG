@@ -269,20 +269,36 @@
                 triangles = triangles.concat(this.back.getTriangles());
             return triangles;
         }
-        clone() {
+        clone(transform) {
             const clone = new BSPNode();
             clone.isInverted = this.isInverted;
             clone.boundingBox.min.copy(this.boundingBox.min);
             clone.boundingBox.max.copy(this.boundingBox.max);
-            if (this.divider !== undefined)
+            if (transform) {
+                clone.boundingBox.min.applyMatrix4(transform);
+                clone.boundingBox.max.applyMatrix4(transform);
+            }
+            if (this.divider !== undefined) {
                 clone.divider = this.divider.clone();
+                if (transform) {
+                    clone.divider.a.applyMatrix4(transform);
+                    clone.divider.b.applyMatrix4(transform);
+                    clone.divider.c.applyMatrix4(transform);
+                }
+            }
             if (this.front !== undefined)
-                clone.front = this.front.clone();
+                clone.front = this.front.clone(transform);
             if (this.back !== undefined)
-                clone.back = this.back.clone();
+                clone.back = this.back.clone(transform);
             const clonedTriangles = [];
             for (let i = 0; i < this.triangles.length; i++) {
-                clonedTriangles.push(this.triangles[i].clone());
+                const clonedTriangle = this.triangles[i].clone();
+                if (transform) {
+                    clonedTriangle.a.applyMatrix4(transform);
+                    clonedTriangle.b.applyMatrix4(transform);
+                    clonedTriangle.c.applyMatrix4(transform);
+                }
+                clonedTriangles.push(clonedTriangle);
             }
             clone.triangles = clonedTriangles;
             return clone;
@@ -327,26 +343,26 @@
             Array.prototype.push.apply(backTriangles, BSPNode.verticesToTriangles(backVertices));
     };
 
-    function convertMeshToTriangles(mesh) {
-        if (isBufferGeometry(mesh.geometry)) {
-            throw new Error(' Only meshes with Three.Geometry are supported.');
+    function convertGeometryToTriangles(geometry) {
+        if (isBufferGeometry(geometry)) {
+            throw new Error('threecsg: Only Three.Geometry is supported.');
         }
         const triangles = [];
-        mesh.updateMatrixWorld(true);
-        const { matrixWorld: transform } = mesh;
-        const { geometry: { faces, vertices } } = mesh;
+        const { faces, vertices } = geometry;
         for (let i = 0; i < faces.length; i++) {
             const face = faces[i];
             const a = vertices[face.a].clone();
             const b = vertices[face.b].clone();
             const c = vertices[face.c].clone();
-            a.applyMatrix4(transform);
-            b.applyMatrix4(transform);
-            c.applyMatrix4(transform);
             const triangle = new Triangle(a, b, c);
             triangles.push(triangle);
         }
         return triangles;
+    }
+    function transformBSP(bsp, mesh) {
+        mesh.updateMatrixWorld(true);
+        const { matrixWorld: transform } = mesh;
+        return bsp.clone(transform);
     }
 
     function intersect(a, b) {
@@ -366,9 +382,9 @@
         const a2 = a.clone();
         const b2 = b.clone();
         a2.clipTo(b2);
-        b2.clipTo(a);
+        b2.clipTo(a2);
         b2.invert();
-        b2.clipTo(a);
+        b2.clipTo(a2);
         b2.invert();
         a2.buildFrom(b2.getTriangles());
         return a2;
@@ -392,6 +408,53 @@
         subtract: subtract
     });
 
+    let geometryToBSP = new WeakMap();
+    let enabled = true;
+    function clear() {
+        geometryToBSP = new WeakMap();
+    }
+    function enable() {
+        enabled = true;
+    }
+    function disable() {
+        enabled = false;
+        clear();
+    }
+    function getBSPForGeometry(geometry) {
+        return enabled ? geometryToBSP.get(geometry) : undefined;
+    }
+    function setBSPForGeometry(geometry, bsp) {
+        if (enabled) {
+            geometryToBSP.set(geometry, bsp);
+        }
+    }
+    function getOrSetBSP(geometry) {
+        if (enabled) {
+            let bsp = geometryToBSP.get(geometry);
+            if (bsp === undefined) {
+                bsp = new BSPNode(convertGeometryToTriangles(geometry));
+                geometryToBSP.set(geometry, bsp);
+            }
+            return bsp;
+        }
+        else {
+            return new BSPNode(convertGeometryToTriangles(geometry));
+        }
+    }
+    function remove(geometry) {
+        geometryToBSP.delete(geometry);
+    }
+
+    var cache = /*#__PURE__*/Object.freeze({
+        clear: clear,
+        enable: enable,
+        disable: disable,
+        getBSPForGeometry: getBSPForGeometry,
+        setBSPForGeometry: setBSPForGeometry,
+        getOrSetBSP: getOrSetBSP,
+        remove: remove
+    });
+
     function geometryToMesh(geometry, material) {
         // center geometry & apply position to a new mesh
         geometry.computeBoundingBox();
@@ -403,27 +466,41 @@
         return mesh;
     }
     function subtract$1(mesh1, mesh2, material) {
-        const bsp1 = new BSPNode(convertMeshToTriangles(mesh1));
-        const bsp2 = new BSPNode(convertMeshToTriangles(mesh2));
-        const geometry = subtract(bsp1, bsp2).toGeometry();
+        const bsp1 = getOrSetBSP(mesh1.geometry);
+        const bsp2 = getOrSetBSP(mesh2.geometry);
+        const bsp1Transformed = transformBSP(bsp1, mesh1);
+        const bsp2Transformed = transformBSP(bsp2, mesh2);
+        const result = subtract(bsp1Transformed, bsp2Transformed);
+        const geometry = result.toGeometry();
+        setBSPForGeometry(geometry, result);
         return geometryToMesh(geometry, material);
     }
     function union$1(mesh1, mesh2, material) {
-        const bsp1 = new BSPNode(convertMeshToTriangles(mesh1));
-        const bsp2 = new BSPNode(convertMeshToTriangles(mesh2));
-        const geometry = union(bsp1, bsp2).toGeometry();
+        const bsp1 = getOrSetBSP(mesh1.geometry);
+        const bsp2 = getOrSetBSP(mesh2.geometry);
+        const bsp1Transformed = transformBSP(bsp1, mesh1);
+        const bsp2Transformed = transformBSP(bsp2, mesh2);
+        const result = union(bsp1Transformed, bsp2Transformed);
+        const geometry = result.toGeometry();
+        setBSPForGeometry(geometry, result);
         return geometryToMesh(geometry, material);
     }
     function intersect$1(mesh1, mesh2, material) {
-        const bsp1 = new BSPNode(convertMeshToTriangles(mesh1));
-        const bsp2 = new BSPNode(convertMeshToTriangles(mesh2));
-        const geometry = intersect(bsp1, bsp2).toGeometry();
+        const bsp1 = getOrSetBSP(mesh1.geometry);
+        const bsp2 = getOrSetBSP(mesh2.geometry);
+        const bsp1Transformed = transformBSP(bsp1, mesh1);
+        const bsp2Transformed = transformBSP(bsp2, mesh2);
+        const result = intersect(bsp1Transformed, bsp2Transformed);
+        const geometry = result.toGeometry();
+        setBSPForGeometry(geometry, result);
         return geometryToMesh(geometry, material);
     }
 
     exports.BSPNode = BSPNode;
-    exports.convertMeshToTriangles = convertMeshToTriangles;
+    exports.convertGeometryToTriangles = convertGeometryToTriangles;
+    exports.transformBSP = transformBSP;
     exports.boolean = boolean;
+    exports.cache = cache;
     exports.subtract = subtract$1;
     exports.union = union$1;
     exports.intersect = intersect$1;

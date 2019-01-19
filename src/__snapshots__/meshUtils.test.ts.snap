@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`convertMeshToTriangles converts a Three.Mesh with non-instanced geometry to Triangles 1`] = `
+exports[`meshUtils convertMeshToTriangles converts a Three.Mesh with non-instanced geometry to Triangles 1`] = `
 Array [
   Triangle {
     "a": Vector3 {

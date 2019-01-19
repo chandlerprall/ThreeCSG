@@ -1,6 +1,6 @@
 import Triangle, {CLASSIFY_BACK, CLASSIFY_COPLANAR, CLASSIFY_FRONT, CLASSIFY_SPANNING} from './Triangle';
 import {isConvexSet} from './utils';
-import {Box3, Face3, Geometry, Vector3} from 'three';
+import {Box3, Face3, Geometry, Matrix4, Vector3} from 'three';
 
 const MINIMUM_RELATION = 0.5; // 0 -> 1
 const MINIMUM_RELATION_SCALE = 2; // should always be >2
@@ -266,7 +266,7 @@ export default class BSPNode {
         return triangles;
     }
 
-    clone(): BSPNode {
+    clone(transform?: Matrix4): BSPNode {
         const clone = new BSPNode();
 
         clone.isInverted = this.isInverted;
@@ -274,13 +274,31 @@ export default class BSPNode {
         clone.boundingBox.min.copy(this.boundingBox.min);
         clone.boundingBox.max.copy(this.boundingBox.max);
 
-        if (this.divider !== undefined) clone.divider = this.divider.clone();
-        if (this.front !== undefined) clone.front = this.front.clone();
-        if (this.back !== undefined) clone.back = this.back.clone();
+        if (transform) {
+            clone.boundingBox.min.applyMatrix4(transform);
+            clone.boundingBox.max.applyMatrix4(transform);
+        }
+
+        if (this.divider !== undefined) {
+            clone.divider = this.divider.clone();
+            if (transform) {
+                clone.divider.a.applyMatrix4(transform);
+                clone.divider.b.applyMatrix4(transform);
+                clone.divider.c.applyMatrix4(transform);
+            }
+        }
+        if (this.front !== undefined) clone.front = this.front.clone(transform);
+        if (this.back !== undefined) clone.back = this.back.clone(transform);
 
         const clonedTriangles = [];
         for (let i = 0; i < this.triangles.length; i++) {
-            clonedTriangles.push(this.triangles[i].clone());
+            const clonedTriangle = this.triangles[i].clone();
+            if (transform) {
+                clonedTriangle.a.applyMatrix4(transform);
+                clonedTriangle.b.applyMatrix4(transform);
+                clonedTriangle.c.applyMatrix4(transform);
+            }
+            clonedTriangles.push(clonedTriangle);
         }
         clone.triangles = clonedTriangles;
 
