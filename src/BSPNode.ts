@@ -5,6 +5,10 @@ import {Face3, Geometry, Vector3} from 'three';
 const MINIMUM_RELATION = 0.5; // 0 -> 1
 const MINIMUM_RELATION_SCALE = 5; // should always be >2
 
+/**
+ * Algorithm adapted from Binary Space Partioning Trees and Polygon Removal in Real Time 3D Rendering
+ * Samuel Ranta-Eskola, 2001
+ */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
     if (isConvexSet(triangles)) return undefined;
 

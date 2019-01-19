@@ -1,37 +1,37 @@
 import BSPNode from './BSPNode';
 
 export function intersect(a: BSPNode, b: BSPNode) {
-    a = a.clone();
-    b = b.clone();
-    a.invert();
-    b.clipTo(a);
-    b.invert();
-    a.clipTo(b);
-    b.clipTo(a);
-    a.invert();
-    b.invert();
-    return new BSPNode(a.getTriangles().concat(b.getTriangles()));
+    const a2 = a.clone();
+    const b2 = b.clone();
+    a2.invert();
+    b2.clipTo(a2);
+    b2.invert();
+    a2.clipTo(b2);
+    b2.clipTo(a2);
+    a2.invert();
+    b2.invert();
+    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
 }
 
 export function union(a: BSPNode, b: BSPNode) {
-    a = a.clone();
-    b = b.clone();
-    a.clipTo(b);
-    b.clipTo(a);
-    b.invert();
-    b.clipTo(a);
-    b.invert();
-    return new BSPNode(a.getTriangles().concat(b.getTriangles()));
+    const a2 = a.clone();
+    const b2 = b.clone();
+    a2.clipTo(b2);
+    b2.clipTo(a);
+    b2.invert();
+    b2.clipTo(a);
+    b2.invert();
+    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
 }
 
 export function subtract(a: BSPNode, b: BSPNode) {
-    a = a.clone();
-    b = b.clone();
-    a.invert();
-    b.clipTo(a);
-    a.clipTo(b);
-    b.invert();
-    b.clipTo(a);
-    a.invert();
-    return new BSPNode(a.getTriangles().concat(b.getTriangles()));
+    const a2 = a.clone();
+    const b2 = b.clone();
+    a2.invert();
+    a2.clipTo(b2);
+    b2.clipTo(a2);
+    b2.invert();
+    b2.clipTo(a2);
+    a2.invert();
+    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
 }
