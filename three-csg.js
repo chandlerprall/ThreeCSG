@@ -61,8 +61,8 @@
         return true;
     }
 
-    const MINIMUM_RELATION = 0.5; // 0 -> 1
-    const MINIMUM_RELATION_SCALE = 2; // should always be >2
+    const MINIMUM_RELATION = 0.8; // 0 -> 1
+    const MINIMUM_RELATION_SCALE = 10; // should always be >2
     /**
      * Algorithm adapted from Binary Space Partioning Trees and Polygon Removal in Real Time 3D Rendering
      * Samuel Ranta-Eskola, 2001

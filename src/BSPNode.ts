@@ -2,8 +2,8 @@ import Triangle, {CLASSIFY_BACK, CLASSIFY_COPLANAR, CLASSIFY_FRONT, CLASSIFY_SPA
 import {isConvexSet} from './utils';
 import {Box3, Face3, Geometry, Matrix4, Vector3} from 'three';
 
-const MINIMUM_RELATION = 0.5; // 0 -> 1
-const MINIMUM_RELATION_SCALE = 2; // should always be >2
+const MINIMUM_RELATION = 0.8; // 0 -> 1
+const MINIMUM_RELATION_SCALE = 10; // should always be >2
 
 /**
  * Algorithm adapted from Binary Space Partioning Trees and Polygon Removal in Real Time 3D Rendering
