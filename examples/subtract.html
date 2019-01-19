@@ -14,7 +14,7 @@
     </head>
     <body>
         <script type="text/javascript" src="../three-csg.js"></script>
-        <script type="text/javascript" src="./OrbitControls.js"></script>
+        <script type="text/javascript" src="./lib/OrbitControls.js"></script>
         <script type="text/javascript">
             const renderer = new THREE.WebGLRenderer({antialias: true});
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -29,7 +29,7 @@
             const camera = new THREE.PerspectiveCamera(15, window.innerWidth / window.innerHeight, 1, 100);
             camera.position.set(2, 2, -5);
             camera.lookAt(scene.position);
-            var controls = new THREE.OrbitControls(camera);
+            const controls = new THREE.OrbitControls(camera);
 
             const box1Geometry = new THREE.BoxGeometry(0.15, 0.25, 0.15);
             const box1 = new THREE.Mesh(box1Geometry, wireMaterial);

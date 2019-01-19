@@ -1,16 +1,16 @@
 import Triangle, {CLASSIFY_BACK, CLASSIFY_COPLANAR, CLASSIFY_FRONT, CLASSIFY_SPANNING} from './Triangle';
 import {isConvexSet} from './utils';
-import {Face3, Geometry, Vector3} from 'three';
+import {Box3, Face3, Geometry, Vector3} from 'three';
 
 const MINIMUM_RELATION = 0.5; // 0 -> 1
-const MINIMUM_RELATION_SCALE = 5; // should always be >2
+const MINIMUM_RELATION_SCALE = 2; // should always be >2
 
 /**
  * Algorithm adapted from Binary Space Partioning Trees and Polygon Removal in Real Time 3D Rendering
  * Samuel Ranta-Eskola, 2001
  */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
-    if (isConvexSet(triangles)) return undefined;
+    if (isConvexSet(triangles)) return triangles[0];
 
     let minimumRelation = MINIMUM_RELATION;
     let bestTriangle: Triangle | undefined = undefined;
@@ -51,10 +51,13 @@ function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
             // resulting sets is better then this triangle is the new candidate
             // triangle.
             if (
-                relation > minimumRelation &&
+                minimumRelation === 0 ||
                 (
-                    numSpanning < leastSplits ||
-                    (numSpanning === leastSplits && relation > bestRelation)
+                    relation > minimumRelation &&
+                    (
+                        numSpanning < leastSplits ||
+                        (numSpanning === leastSplits && relation > bestRelation)
+                    )
                 )
             ) {
                 bestTriangle = triangleOuter;
@@ -74,6 +77,7 @@ export default class BSPNode {
     back?: BSPNode;
     triangles: Triangle[];
     isInverted: boolean;
+    boundingBox: Box3;
 
     static interpolateVectors(a: Vector3, b: Vector3, t: number): Vector3 {
         return a.clone().lerp(b, t);
@@ -120,6 +124,7 @@ export default class BSPNode {
     constructor(triangles?: Triangle[]) {
         this.triangles = [];
         this.isInverted = false;
+        this.boundingBox = new Box3();
 
         if (triangles !== undefined) {
             this.buildFrom(triangles);
@@ -148,6 +153,18 @@ export default class BSPNode {
 
         for (let i = 0; i < triangles.length; i++) {
             const triangle = triangles[i];
+
+            this.boundingBox.min.set(
+                Math.min(this.boundingBox.min.x, triangle.a.x, triangle.b.x, triangle.c.x),
+                Math.min(this.boundingBox.min.y, triangle.a.y, triangle.b.y, triangle.c.y),
+                Math.min(this.boundingBox.min.z, triangle.a.z, triangle.b.z, triangle.c.z)
+            );
+            this.boundingBox.max.set(
+                Math.max(this.boundingBox.max.x, triangle.a.x, triangle.b.x, triangle.c.x),
+                Math.max(this.boundingBox.max.y, triangle.a.y, triangle.b.y, triangle.c.y),
+                Math.max(this.boundingBox.max.z, triangle.a.z, triangle.b.z, triangle.c.z)
+            );
+
             const side = this.divider!.classifySide(triangle);
 
             if (side === CLASSIFY_COPLANAR) {
@@ -196,6 +213,7 @@ export default class BSPNode {
 
     // Remove all triangles in this BSP tree that are inside the other BSP tree
     clipTo(tree: BSPNode) {
+        if (tree.isInverted === false && this.boundingBox.intersectsBox(tree.boundingBox) === false) return;
         this.triangles = tree.clipTriangles(this.triangles);
         if (this.front !== undefined) this.front.clipTo(tree);
         if (this.back !== undefined) this.back.clipTo(tree);
@@ -207,46 +225,6 @@ export default class BSPNode {
 
         let frontTriangles: Triangle[] = [];
         let backTriangles: Triangle[] = [];
-
-        if (this.front === undefined && this.back === undefined) {
-            triangles = triangles.slice();
-            // this is a leaf node and thus a convex set, return any triangles not contained by the set
-outer:
-            for (let i = 0; i < triangles.length; i++) {
-                const candidate = triangles[i];
-
-                let backsideCount = 0;
-                let frontsideCount = 0;
-                for (let j = 0; j < this.triangles.length; j++) {
-                    const side = this.triangles[j].classifySide(candidate);
-                    if (side === CLASSIFY_BACK) {
-                        backsideCount++;
-                    } else if (side === CLASSIFY_FRONT) {
-                        frontsideCount++;
-                    } else if (side === CLASSIFY_COPLANAR) {
-                        // keep coplanar triangles if they face the correct direction
-                        const dot = this.triangles[j].normal.dot(candidate.normal);
-                        if (dot < 0) {
-                            backsideCount++;
-                        } else {
-                            frontsideCount++;
-                        }
-                    } else if (side === CLASSIFY_SPANNING) {
-                        // exclude this triangle as it becomes split,
-                        // push resulting front triangles into `triangles` for more splitting
-                        BSPNode.splitTriangle(candidate, this.triangles[j], triangles, triangles);
-                        continue outer;
-                    }
-                }
-
-                if (!this.isInverted && backsideCount !== this.triangles.length) {
-                    frontTriangles.push(candidate);
-                } else if (this.isInverted && frontsideCount === this.triangles.length) {
-                    frontTriangles.push(candidate);
-                }
-            }
-            return frontTriangles;
-        }
 
         // not a leaf node / convex set
         for (let i = 0; i < triangles.length; i++) {
@@ -292,6 +270,9 @@ outer:
         const clone = new BSPNode();
 
         clone.isInverted = this.isInverted;
+
+        clone.boundingBox.min.copy(this.boundingBox.min);
+        clone.boundingBox.max.copy(this.boundingBox.max);
 
         if (this.divider !== undefined) clone.divider = this.divider.clone();
         if (this.front !== undefined) clone.front = this.front.clone();

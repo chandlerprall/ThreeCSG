@@ -10,7 +10,8 @@ export function intersect(a: BSPNode, b: BSPNode) {
     b2.clipTo(a2);
     a2.invert();
     b2.invert();
-    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
+    a2.buildFrom(b2.getTriangles());
+    return a2;
 }
 
 export function union(a: BSPNode, b: BSPNode) {
@@ -21,7 +22,8 @@ export function union(a: BSPNode, b: BSPNode) {
     b2.invert();
     b2.clipTo(a);
     b2.invert();
-    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
+    a2.buildFrom(b2.getTriangles());
+    return a2;
 }
 
 export function subtract(a: BSPNode, b: BSPNode) {
@@ -33,5 +35,6 @@ export function subtract(a: BSPNode, b: BSPNode) {
     b2.invert();
     b2.clipTo(a2);
     a2.invert();
-    return new BSPNode(a2.getTriangles().concat(b2.getTriangles()));
+    a2.buildFrom(b2.getTriangles());
+    return a2;
 }
