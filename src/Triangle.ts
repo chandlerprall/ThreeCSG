@@ -24,9 +24,14 @@ export default class Triangle {
         this.c = c.clone();
 
         this.normal = new Vector3();
-        tempVector3.copy(c).sub(a);
-        this.normal.copy(b).sub(a).cross(tempVector3).normalize();
-        this.w = this.normal.dot(a);
+        this.w = 0;
+        this.computeNormal();
+    }
+
+    computeNormal() {
+        tempVector3.copy(this.c).sub(this.a);
+        this.normal.copy(this.b).sub(this.a).cross(tempVector3).normalize();
+        this.w = this.normal.dot(this.a);
     }
 
     classifyPoint(point: Vector3): SIDE_CLASSIFICATION {

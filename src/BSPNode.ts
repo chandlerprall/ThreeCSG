@@ -213,7 +213,7 @@ export default class BSPNode {
 
     // Remove all triangles in this BSP tree that are inside the other BSP tree
     clipTo(tree: BSPNode) {
-        if (tree.isInverted === false && this.boundingBox.intersectsBox(tree.boundingBox) === false) return;
+        if (tree.isInverted === false && this.isInverted === false && this.boundingBox.intersectsBox(tree.boundingBox) === false) return;
         this.triangles = tree.clipTriangles(this.triangles);
         if (this.front !== undefined) this.front.clipTo(tree);
         if (this.back !== undefined) this.back.clipTo(tree);
@@ -297,6 +297,7 @@ export default class BSPNode {
                 clonedTriangle.a.applyMatrix4(transform);
                 clonedTriangle.b.applyMatrix4(transform);
                 clonedTriangle.c.applyMatrix4(transform);
+                clonedTriangle.computeNormal();
             }
             clonedTriangles.push(clonedTriangle);
         }

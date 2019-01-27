@@ -5,7 +5,7 @@
   "main": "lib",
   "author": "Chandler Prall <chandler.prall@gmail.com>",
   "license": "Zlib",
-  "repository": "https://github.com/chandlerprall/ThreeCSG/",
+  "repository": "https://github.com/chandlerprall/threecsg/",
   "scripts": {
     "build": "tsc",
     "postbuild": "rollup lib/index.js --file three-csg.js --format umd --globals three:THREE --name threecsg",

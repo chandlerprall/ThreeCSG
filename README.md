@@ -33,4 +33,4 @@ const material = new THREE.MeshNormalMaterial();
 const unionmesh = threecsg.union(box, sphere, material); // combine box and sphere
 const intersectmesh = threecsg.intersect(box, sphere, material); // find intersection of box and sphere
 const subtractmesh = threecsg.subtract(box, sphere, material); // removes parts of box that don't overlap with sphere
-``` 
+```
