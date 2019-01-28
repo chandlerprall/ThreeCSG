@@ -80,8 +80,8 @@
                 const sphere = new THREE.Mesh(new THREE.SphereGeometry());
 
                 box.quaternion.set(0, 1, 0, 1).normalize();
-                box.position.set(-2, -0.5, 0);
-                sphere.position.set(-1.7, 0.4, 0.2);
+                box.position.set(-2, 0, 0);
+                sphere.position.set(-1.6, 0, 0);
 
                 const intersectmesh1 = threecsg.intersect(box, sphere, material);
                 scene.add(intersectmesh1);
