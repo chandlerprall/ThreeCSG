@@ -102,11 +102,14 @@
             scene.remove(sphereBig);
             scene.remove(sphereSmall);
 
-            // scene.add(csgresult);
             renderer.setScissor(halfWidth, 0, halfWidth, height);
             scene.overrideMaterial = normalMaterial;
             renderer.render(scene, camera);
+
             scene.remove(csgresult);
+
+            // tell Threejs to clean up webgl/array buffers for the generated geometry
+			csgresult.geometry.dispose();
         }
 
         animate();
