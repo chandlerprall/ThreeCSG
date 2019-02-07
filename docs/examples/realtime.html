@@ -31,7 +31,7 @@
 </head>
 <body>
     <script type="text/javascript" src="../three-csg.js"></script>
-    <script type="text/javascript" src="./lib/OrbitControls.js"></script>
+    <script type="text/javascript" src="./extra/OrbitControls.js"></script>
     <script type="text/javascript">
         let operation = 'union';
         function setOperation(op) {
@@ -75,7 +75,7 @@
 
         const sphereLoopTime = 2000;
         const halfLoopTime = sphereLoopTime / 2;
-        
+
         function animate(time) {
             if (time !== undefined) {
                 let loopTime = time % sphereLoopTime;
