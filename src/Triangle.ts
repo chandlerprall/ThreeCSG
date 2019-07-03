@@ -62,9 +62,9 @@ export default class Triangle {
 
     clone() {
         return new Triangle(
-            this.a.clone(),
-            this.b.clone(),
-            this.c.clone()
+            this.a,
+            this.b,
+            this.c
         );
     }
 }
