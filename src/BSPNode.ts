@@ -370,7 +370,7 @@ export default class BSPNode {
     return clone;
   }
 
-  toGeometry() {
+  toGeometry(): Geometry {
     const geometry = new Geometry();
 
     const triangles = this.getTriangles();
