@@ -150,19 +150,56 @@ describe('Triangle', () => {
             const arr: number[] = triangle.toNumberArray();
             expect(arr).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]);
         })
-    })
+    });
+
+
 
     describe('fromNumberArray', () => {
         it('Deserialize the triangle into an array', () => {
             const a = new Vector3(1, 2, 3);
             const b = new Vector3(4, 5, 6);
             const c = new Vector3(7, 8, 9);
-            const normal = new Vector3(0, 0, 0);
             const triangle = new Triangle(a, b, c);
+            const normal = triangle.normal.clone();
 
-            const arr: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0];
+            const arr: number[] = triangle.toNumberArray();
             const deTriangle: Triangle = new Triangle();
             deTriangle.fromNumberArray(arr);
+
+            expect(deTriangle.a).toEqual(a);
+            expect(deTriangle.b).toEqual(b);
+            expect(deTriangle.c).toEqual(c);
+            expect(deTriangle.normal).toEqual(normal);
+            expect(deTriangle.w).toEqual(0);
+        })
+    });
+
+    describe('toBufferArray', () => {
+        it('Serialize the triangle into an array', () => {
+            const a = new Vector3(1, 2, 3);
+            const b = new Vector3(4, 5, 6);
+            const c = new Vector3(7, 8, 9);
+
+            const triangle = new Triangle(a, b, c);
+
+            const buff: ArrayBuffer = triangle.toArrayBuffer();
+            const arr: number[] = triangle.toNumberArray();
+            expect(Float32Array.from(arr).buffer).toEqual(buff);
+        })
+    });
+
+    describe('fromBufferArray', () => {
+        it('Deserialize the triangle into an array', () => {
+            const a = new Vector3(1, 2, 3);
+            const b = new Vector3(4, 5, 6);
+            const c = new Vector3(7, 8, 9);
+            const triangle = new Triangle(a, b, c);
+            const normal = triangle.normal.clone();
+
+
+            const buff: ArrayBuffer = triangle.toArrayBuffer();
+            const deTriangle: Triangle = new Triangle();
+            deTriangle.fromArrayBuffer(buff);
 
             expect(deTriangle.a).toEqual(a);
             expect(deTriangle.b).toEqual(b);
