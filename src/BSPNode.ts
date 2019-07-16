@@ -74,23 +74,23 @@ function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
 }
 
 export default class BSPNode {
-  divider?: Triangle;
-  front?: BSPNode;
-  back?: BSPNode;
-  triangles: Triangle[];
-  isInverted: boolean;
-  boundingBox: Box3;
+  public divider?: Triangle;
+  public front?: BSPNode;
+  public back?: BSPNode;
+  public triangles: Triangle[];
+  public isInverted: boolean;
+  public boundingBox: Box3;
 
   static interpolateVectors(a: Vector3, b: Vector3, t: number): Vector3 {
     return a.clone().lerp(b, t);
   }
 
-  static splitTriangle = function splitTriangle(
+  static splitTriangle(
     triangle: Triangle,
     divider: Triangle,
     frontTriangles: Triangle[],
     backTriangles: Triangle[]
-  ) {
+  ): void {
     const vertices = [triangle.a, triangle.b, triangle.c];
     const frontVertices: Vector3[] = [];
     const backVertices: Vector3[] = [];
@@ -148,7 +148,7 @@ export default class BSPNode {
     }
   }
 
-  buildFrom(triangles: Triangle[]) {
+  public buildFrom(triangles: Triangle[]) {
     if (this.divider === undefined) {
       const bestDivider = chooseDividingTriangle(triangles);
       if (bestDivider === undefined) {
@@ -162,6 +162,122 @@ export default class BSPNode {
     } else {
       this.addTriangles(triangles);
     }
+  }
+
+  public toArrayBuffer(): ArrayBuffer {
+    const arr = this.toNumberArray();
+    return Float32Array.from(arr).buffer;
+  };
+
+  public toNumberArray(): number[] {
+
+    const arr = [];
+    // fill with triangles
+
+    // number of triangles
+    arr.push(this.triangles.length);
+    // the triangles
+    for (let triangle of this.triangles) {
+      arr.push(...triangle.toNumberArray());
+    }
+
+    // fill with front triangles
+    // number of front and data
+    if (!this.front) arr.push(0);
+    else {
+      const frontArr: number[] = this.front.toNumberArray();
+      arr.push(frontArr.length);
+      arr.push(...frontArr);
+    }
+
+    // fill with back triangles
+    // number of back and data
+    if (!this.back) arr.push(0);
+    else {
+      const backArr: number[] = this.back.toNumberArray();
+      arr.push(backArr.length);
+      arr.push(...backArr);
+    }
+
+    //divider
+    if (!this.divider) arr.push(0);
+    else {
+      arr.push(1);
+      arr.push(...this.divider.toNumberArray())
+    }
+
+    arr.push(this.isInverted ? 1 : 0);
+    arr.push(this.boundingBox.min.x, this.boundingBox.min.y, this.boundingBox.min.z);
+    arr.push(this.boundingBox.max.x, this.boundingBox.max.y, this.boundingBox.max.z);
+
+    return arr;
+  }
+
+  public fromNumberArray(arr: Float32Array): void {
+    const trianglesLength = arr[0];
+    const triangleOffset = 1;
+
+    for (let i = 0; i < trianglesLength; i += 1) {
+      const triangle: Triangle = new Triangle();
+      let index = i * 13 + triangleOffset;
+      const triangleArray = arr.slice(index, index + 13);
+      triangle.fromNumberArray(triangleArray);
+      this.triangles.push(triangle)
+    }
+
+    let frontOffset: number = triangleOffset + trianglesLength * 13;
+    const frontLength: number = arr[frontOffset];
+    frontOffset += 1;
+    if (frontLength > 0) {
+      const frontArray: Float32Array = arr.slice(frontOffset, frontOffset + frontLength);
+      if (this.front) this.front.fromNumberArray(frontArray);
+      else {
+        this.front = new BSPNode();
+        this.front.fromNumberArray(frontArray);
+      }
+    }
+
+    let backOffset: number = frontOffset + frontLength;
+    const backLength: number = arr[backOffset];
+    backOffset += 1;
+
+    if (backLength > 0) {
+      const backArray: Float32Array = arr.slice(backOffset, backOffset + backLength);
+      if (this.front) this.front.fromNumberArray(backArray);
+      else {
+        this.back = new BSPNode();
+        this.back.fromNumberArray(backArray);
+      }
+    }
+
+    let dividerOffset: number = backOffset + backLength;
+    const dividerLength: number = arr[dividerOffset];
+    dividerOffset += 1;
+    if (dividerLength > 0) {
+      const dividerArray: Float32Array = arr.slice(dividerOffset, dividerOffset + dividerLength);
+      if (this.divider) this.divider.fromNumberArray(dividerArray);
+      else {
+        this.divider = new Triangle();
+        this.divider.fromNumberArray(dividerArray);
+      }
+    }
+
+    const invertedIndex = dividerOffset + dividerLength;
+    this.isInverted = arr[invertedIndex] === 1 ? true : false;
+
+    const boundingBoxOffset = invertedIndex + 1;
+    this.boundingBox.min.set(arr[boundingBoxOffset], arr[boundingBoxOffset + 1], arr[boundingBoxOffset + 2]);
+    this.boundingBox.max.set(arr[boundingBoxOffset + 3], arr[boundingBoxOffset + 4], arr[boundingBoxOffset + 5]);
+  }
+
+  public fromArrayBuffer(buff: ArrayBuffer): void {
+    this.triangles = [];
+    const arr: Float32Array = new Float32Array(buff, 0,
+      buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
+
+    this.fromNumberArray(arr);
+
+
   }
 
   private addTriangles(triangles: Triangle[]) {
