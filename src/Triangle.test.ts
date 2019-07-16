@@ -151,4 +151,24 @@ describe('Triangle', () => {
             expect(arr).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0]);
         })
     })
+
+    describe('fromNumberArray', () => {
+        it('Deserialize the triangle into an array', () => {
+            const a = new Vector3(1, 2, 3);
+            const b = new Vector3(4, 5, 6);
+            const c = new Vector3(7, 8, 9);
+            const normal = new Vector3(0, 0, 0);
+            const triangle = new Triangle(a, b, c);
+
+            const arr: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0];
+            const deTriangle: Triangle = new Triangle();
+            deTriangle.fromNumberArray(arr);
+
+            expect(deTriangle.a).toEqual(a);
+            expect(deTriangle.b).toEqual(b);
+            expect(deTriangle.c).toEqual(c);
+            expect(deTriangle.normal).toEqual(normal);
+            expect(deTriangle.w).toEqual(0);
+        })
+    })
 });

@@ -58,7 +58,7 @@ export default class Triangle {
     return arr;
   }
 
-  public fromNumberArray(arr: Float32Array): void {
+  public fromNumberArray(arr: number[]): void {
     if (arr.length !== 13)
       throw new Error(`Array buffer has incorrect size. It's ${arr.length} and should be 13`);
 
@@ -73,7 +73,7 @@ export default class Triangle {
     const arr: Float32Array = new Float32Array(buff, 0,
       buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
 
-    this.fromNumberArray(arr);
+    this.fromNumberArray(Array.from(arr));
   }
 
   public computeNormal(): void {
