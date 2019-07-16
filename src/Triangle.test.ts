@@ -157,10 +157,11 @@ describe('Triangle', () => {
     describe('fromNumberArray', () => {
         it('Deserialize the triangle into an array', () => {
             const a = new Vector3(1, 2, 3);
-            const b = new Vector3(4, 5, 6);
+            const b = new Vector3(4, 6, 6);
             const c = new Vector3(7, 8, 9);
             const triangle = new Triangle(a, b, c);
             const normal = triangle.normal.clone();
+            const w = triangle.w;
 
             const arr: number[] = triangle.toNumberArray();
             const deTriangle: Triangle = new Triangle();
@@ -170,7 +171,7 @@ describe('Triangle', () => {
             expect(deTriangle.b).toEqual(b);
             expect(deTriangle.c).toEqual(c);
             expect(deTriangle.normal).toEqual(normal);
-            expect(deTriangle.w).toEqual(0);
+            expect(deTriangle.w).toEqual(w);
         })
     });
 
@@ -192,9 +193,10 @@ describe('Triangle', () => {
         it('Deserialize the triangle into an array', () => {
             const a = new Vector3(1, 2, 3);
             const b = new Vector3(4, 5, 6);
-            const c = new Vector3(7, 8, 9);
+            const c = new Vector3(2, 8, 9);
             const triangle = new Triangle(a, b, c);
             const normal = triangle.normal.clone();
+            const w = triangle.w;
 
 
             const buff: ArrayBuffer = triangle.toArrayBuffer();
@@ -204,8 +206,10 @@ describe('Triangle', () => {
             expect(deTriangle.a).toEqual(a);
             expect(deTriangle.b).toEqual(b);
             expect(deTriangle.c).toEqual(c);
-            expect(deTriangle.normal).toEqual(normal);
-            expect(deTriangle.w).toEqual(0);
+            expect(deTriangle.normal.x).toBeCloseTo(normal.x);
+            expect(deTriangle.normal.y).toBeCloseTo(normal.y);
+            expect(deTriangle.normal.z).toBeCloseTo(normal.z);
+            expect(deTriangle.w).toBeCloseTo(w);
         })
     })
 });
