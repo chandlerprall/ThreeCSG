@@ -171,6 +171,7 @@ export default class BSPNode {
 
   public toNumberArray(): number[] {
 
+    debugger;
     const arr = [];
     // fill with triangles
 
@@ -202,8 +203,9 @@ export default class BSPNode {
     //divider
     if (!this.divider) arr.push(0);
     else {
-      arr.push(1);
-      arr.push(...this.divider.toNumberArray())
+      const dividerArray = this.divider.toNumberArray();
+      arr.push(dividerArray.length)
+      arr.push(...dividerArray)
     }
 
     arr.push(this.isInverted ? 1 : 0);
@@ -213,14 +215,14 @@ export default class BSPNode {
     return arr;
   }
 
-  public fromNumberArray(arr: Float32Array): void {
+  public fromNumberArray(arr: number[]): void {
     const trianglesLength = arr[0];
     const triangleOffset = 1;
 
     for (let i = 0; i < trianglesLength; i += 1) {
       const triangle: Triangle = new Triangle();
       let index = i * 13 + triangleOffset;
-      const triangleArray = arr.slice(index, index + 13);
+      const triangleArray: number[] = arr.slice(index, index + 13);
       triangle.fromNumberArray(triangleArray);
       this.triangles.push(triangle)
     }
@@ -229,7 +231,7 @@ export default class BSPNode {
     const frontLength: number = arr[frontOffset];
     frontOffset += 1;
     if (frontLength > 0) {
-      const frontArray: Float32Array = arr.slice(frontOffset, frontOffset + frontLength);
+      const frontArray: number[] = arr.slice(frontOffset, frontOffset + frontLength);
       if (this.front) this.front.fromNumberArray(frontArray);
       else {
         this.front = new BSPNode();
@@ -237,13 +239,13 @@ export default class BSPNode {
       }
     }
 
+    debugger;
     let backOffset: number = frontOffset + frontLength;
     const backLength: number = arr[backOffset];
     backOffset += 1;
-
     if (backLength > 0) {
-      const backArray: Float32Array = arr.slice(backOffset, backOffset + backLength);
-      if (this.front) this.front.fromNumberArray(backArray);
+      const backArray: number[] = arr.slice(backOffset, backOffset + backLength);
+      if (this.back) this.back.fromNumberArray(backArray);
       else {
         this.back = new BSPNode();
         this.back.fromNumberArray(backArray);
@@ -254,7 +256,7 @@ export default class BSPNode {
     const dividerLength: number = arr[dividerOffset];
     dividerOffset += 1;
     if (dividerLength > 0) {
-      const dividerArray: Float32Array = arr.slice(dividerOffset, dividerOffset + dividerLength);
+      const dividerArray: number[] = arr.slice(dividerOffset, dividerOffset + dividerLength);
       if (this.divider) this.divider.fromNumberArray(dividerArray);
       else {
         this.divider = new Triangle();
@@ -275,7 +277,7 @@ export default class BSPNode {
     const arr: Float32Array = new Float32Array(buff, 0,
       buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
 
-    this.fromNumberArray(arr);
+    this.fromNumberArray(Array.from(arr));
 
 
   }

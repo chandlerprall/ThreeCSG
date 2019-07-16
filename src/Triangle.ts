@@ -60,7 +60,7 @@ export default class Triangle {
 
   public fromNumberArray(arr: number[]): void {
     if (arr.length !== 13)
-      throw new Error(`Array buffer has incorrect size. It's ${arr.length} and should be 13`);
+      throw new Error(`Array has incorrect size. It's ${arr.length} and should be 13`);
 
     this.a.set(arr[0], arr[1], arr[2]);
     this.b.set(arr[3], arr[4], arr[5]);
