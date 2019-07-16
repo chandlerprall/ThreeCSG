@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "postbuild": "rollup lib/index.js --file three-csg.js --format umd --globals three:THREE --name threecsg",
-    "test": "jest"
+    "test": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
   "jest": {
     "rootDir": ".",
