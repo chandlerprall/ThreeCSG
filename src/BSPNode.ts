@@ -171,7 +171,6 @@ export default class BSPNode {
 
   public toNumberArray(): number[] {
 
-    debugger;
     const arr = [];
     // fill with triangles
 
@@ -239,7 +238,6 @@ export default class BSPNode {
       }
     }
 
-    debugger;
     let backOffset: number = frontOffset + frontLength;
     const backLength: number = arr[backOffset];
     backOffset += 1;
@@ -283,11 +281,11 @@ export default class BSPNode {
   }
 
   private addTrianglesIterative(triangles: Triangle[]) {
-    const heap: Array<{ triangles: Triangle[], node: BSPNode }> = [];
+    const heap: Array<{ triangles: Triangle[]; node: BSPNode }> = [];
     let [frontTriangles, backTriangles] = this.addTriangles(triangles);
 
     if (backTriangles.length) {
-      this.back = new BSPNode();
+      if (!this.back) this.back = new BSPNode();
       heap.push({
         triangles: backTriangles,
         node: this.back,
@@ -295,7 +293,7 @@ export default class BSPNode {
     }
 
     if (frontTriangles.length) {
-      this.front = new BSPNode();
+      if (!this.front) this.front = new BSPNode();
       heap.push({
         triangles: frontTriangles,
         node: this.front,
@@ -303,12 +301,14 @@ export default class BSPNode {
     }
 
     while (heap.length > 0) {
-
-      const { triangles, node } = heap.pop() as { triangles: Triangle[], node: BSPNode };
+      const { triangles, node } = heap.pop() as {
+        triangles: Triangle[];
+        node: BSPNode;
+      };
       [frontTriangles, backTriangles] = node.addTriangles(triangles);
 
       if (backTriangles.length) {
-        node.back = new BSPNode();
+        if (!node.back) node.back = new BSPNode();
         heap.push({
           triangles: backTriangles,
           node: node.back,
@@ -316,7 +316,7 @@ export default class BSPNode {
       }
 
       if (frontTriangles.length) {
-        node.front = new BSPNode();
+        if (!node.front) node.front = new BSPNode();
         heap.push({
           triangles: frontTriangles,
           node: node.front,
@@ -326,8 +326,10 @@ export default class BSPNode {
   }
 
   private addTriangles(triangles: Triangle[]) {
-
-    if (!this.divider) this.divider = chooseDividingTriangle(triangles);
+    if (!this.divider) {
+      const bestTriangle = chooseDividingTriangle(triangles);
+      this.divider = bestTriangle ? bestTriangle.clone() : triangles[0];
+    }
 
     const frontTriangles = [];
     const backTriangles = [];
@@ -375,8 +377,6 @@ export default class BSPNode {
           triangle.c.z
         )
       );
-
-
 
       const side = this.divider!.classifySide(triangle);
 
