@@ -1,5 +1,19 @@
 import BSPNode from './BSPNode';
 
+/**
+ * Performs union of an array fo BSPNode
+ * @param bspArr
+ */
+
+export function unionArray(bspArr: BSPNode[]): BSPNode {
+    let resultBSP: BSPNode = bspArr[0];
+    for (let i = 1; i < bspArr.length; i++) {
+        resultBSP = union(resultBSP, bspArr[i]);
+    }
+
+    return resultBSP;
+}
+
 export function intersect(a: BSPNode, b: BSPNode) {
     const a2 = a.clone();
     const b2 = b.clone();
