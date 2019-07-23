@@ -157,10 +157,10 @@ export default class BSPNode {
       } else {
         this.divider = bestDivider.clone();
         this.triangles = [];
-        this.addTriangles(triangles);
+        this.addTrianglesIterative(triangles);
       }
     } else {
-      this.addTriangles(triangles);
+      this.addTrianglesIterative(triangles);
     }
   }
 
@@ -282,7 +282,53 @@ export default class BSPNode {
 
   }
 
+  private addTrianglesIterative(triangles: Triangle[]) {
+    const heap: Array<{ triangles: Triangle[], node: BSPNode }> = [];
+    let [frontTriangles, backTriangles] = this.addTriangles(triangles);
+
+    if (backTriangles.length) {
+      this.back = new BSPNode();
+      heap.push({
+        triangles: backTriangles,
+        node: this.back,
+      });
+    }
+
+    if (frontTriangles.length) {
+      this.front = new BSPNode();
+      heap.push({
+        triangles: frontTriangles,
+        node: this.front,
+      });
+    }
+
+    while (heap.length > 0) {
+
+      const { triangles, node } = heap.pop() as { triangles: Triangle[], node: BSPNode };
+      [frontTriangles, backTriangles] = node.addTriangles(triangles);
+
+      if (backTriangles.length) {
+        node.back = new BSPNode();
+        heap.push({
+          triangles: backTriangles,
+          node: node.back,
+        });
+      }
+
+      if (frontTriangles.length) {
+        node.front = new BSPNode();
+        heap.push({
+          triangles: frontTriangles,
+          node: node.front,
+        });
+      }
+    }
+  }
+
   private addTriangles(triangles: Triangle[]) {
+
+    if (!this.divider) this.divider = chooseDividingTriangle(triangles);
+
     const frontTriangles = [];
     const backTriangles = [];
 
@@ -330,6 +376,8 @@ export default class BSPNode {
         )
       );
 
+
+
       const side = this.divider!.classifySide(triangle);
 
       if (side === CLASSIFY_COPLANAR) {
@@ -348,20 +396,7 @@ export default class BSPNode {
       }
     }
 
-    if (frontTriangles.length) {
-      if (this.front === undefined) {
-        this.front = new BSPNode(frontTriangles);
-      } else {
-        this.front.addTriangles(frontTriangles);
-      }
-    }
-    if (backTriangles.length) {
-      if (this.back === undefined) {
-        this.back = new BSPNode(backTriangles);
-      } else {
-        this.back.addTriangles(backTriangles);
-      }
-    }
+    return [frontTriangles, backTriangles];
   }
 
   invert() {
