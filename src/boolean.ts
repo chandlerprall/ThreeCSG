@@ -4,11 +4,36 @@ import BSPNode from './BSPNode';
  * Performs union of an array fo BSPNode
  * @param bspArr
  */
-
 export function unionArray(bspArr: BSPNode[]): BSPNode {
     let resultBSP: BSPNode = bspArr[0];
     for (let i = 1; i < bspArr.length; i++) {
         resultBSP = union(resultBSP, bspArr[i]);
+    }
+
+    return resultBSP;
+}
+
+/**
+ * Performs subtraction of an array fo BSPNode - First minus rest
+ * @param bspArr
+ */
+export function sutractArray(bspArr: BSPNode[]): BSPNode {
+    let resultBSP: BSPNode = bspArr[0];
+    for (let i = 1; i < bspArr.length; i++) {
+        resultBSP = subtract(resultBSP, bspArr[i]);
+    }
+
+    return resultBSP;
+}
+
+/**
+ * Performs intersection of an array fo BSPNode
+ * @param bspArr
+ */
+export function intersectionArray(bspArr: BSPNode[]): BSPNode {
+    let resultBSP: BSPNode = bspArr[0];
+    for (let i = 1; i < bspArr.length; i++) {
+        resultBSP = intersect(resultBSP, bspArr[i]);
     }
 
     return resultBSP;

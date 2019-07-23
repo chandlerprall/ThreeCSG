@@ -6,20 +6,6 @@ import * as cache from './cache';
 
 export { BSPNode, convertGeometryToTriangles, transformBSP, boolean, cache };
 
-function insertInOrder(bspArr: BSPNode[], bsp: BSPNode, key: string): void {
-  const density: number = bsp[key] || 0;
-  for (let i = 0; i < bspArr.length; i++) {
-    const node = bspArr[i];
-    if (node[key] <= density) {
-      bspArr.splice(i, 0, bsp);
-      return;
-    }
-  }
-
-  // if we arrive here it means array is empty or bsp has greatest density
-  bspArr.push(bsp);
-}
-
 function geometryToMesh(geometry: Geometry, material?: Mesh['material']) {
   // center geometry & apply position to a new mesh
   geometry.computeBoundingBox();
@@ -58,7 +44,6 @@ export function subtract(
 export function booleanOperationArray(
   meshArray: Mesh[],
   operation: (arr: BSPNode[]) => BSPNode,
-  order: boolean = false,
   material?: Mesh['material']
 ) {
   const bspArray: BSPNode[] = [];
@@ -69,14 +54,7 @@ export function booleanOperationArray(
     );
     const bspTransformed = transformBSP(bsp, mesh);
 
-    if (order) {
-      const numVertex = (mesh.geometry as Geometry).vertices.length;
-      const bboxSize: Vector3 = new Vector3();
-      bspTransformed.boundingBox.getSize(bboxSize);
-      const volume = bboxSize.x * bboxSize.y * bboxSize.z;
-      bspTransformed.density = numVertex / volume;
-      insertInOrder(bspArray, bspTransformed, 'density');
-    } else bspArray.push(bspTransformed);
+    bspArray.push(bspTransformed);
   }
 
   const result: BSPNode = operation(bspArray);
