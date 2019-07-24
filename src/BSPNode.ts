@@ -10,6 +10,113 @@ import { Box3, Face3, Geometry, Matrix4, Vector3 } from 'three';
 const MINIMUM_RELATION = 0.8; // 0 -> 1
 const MINIMUM_RELATION_SCALE = 10; // should always be >2
 
+
+
+export const bspTree2NumberArray = (head: BSPNode): number[] => {
+  const arr: number[] = [];
+
+  let parentIndex: number = 0;
+
+  arr.push(-1); // index of parent is -1 because is head.
+  arr.push(-1); //front_back is -1 because is head
+  arr.push(...head.toNumberArray());
+
+
+  const heap:
+    Array<{
+      parentIndex: number;
+      node: BSPNode;
+      frontback: number
+    }> = [];
+
+  if (head.front) heap.push(
+    {
+      parentIndex,
+      node: head.front,
+      frontback: 0 // front
+    }
+  );
+
+  if (head.back) heap.push(
+    {
+      parentIndex,
+      node: head.back,
+      frontback: 1 // back
+    }
+  );
+
+  // iterate through heap
+
+  while (heap.length > 0) {
+    const nextNode = heap.pop();
+
+    arr.push(nextNode!.parentIndex);
+    arr.push(nextNode!.frontback);
+    arr.push(...nextNode!.node.toNumberArray());
+    parentIndex += 1;
+
+
+    if (nextNode!.node.front) heap.push(
+      {
+        parentIndex,
+        node: nextNode!.node.front,
+        frontback: 0 // front
+      }
+    );
+
+    if (nextNode!.node.back) heap.push(
+      {
+        parentIndex,
+        node: nextNode!.node.back,
+        frontback: 1 // back
+      }
+    );
+  }
+
+  return arr;
+
+
+}
+
+export const bspTree2ArrayBuffer = (head: BSPNode): ArrayBuffer => {
+  const arr = bspTree2NumberArray(head);
+  return Float32Array.from(arr).buffer;
+}
+
+export const numberArray2BSPTree = (arr: number[]): BSPNode => {
+  let head: BSPNode;
+  const references: BSPNode[] = [];
+
+  while (arr.length > 0) {
+    const node: BSPNode = new BSPNode();
+    const parentIndex = arr.shift() as number;
+    const frontback = arr.shift() as number;
+    const offset = node.fromNumberArray(arr);
+    references.push(node);
+
+    if (parentIndex >= 0) {
+      const parent: BSPNode = references[parentIndex];
+      if (frontback === 0) parent.front = node;
+      else parent.back = node;
+    } else {
+      //if parent index === -1 , then this node is head
+      head = node;
+    }
+
+    arr.splice(0, offset);
+  }
+  return head!;
+
+}
+
+export const arrayBuffer2BSPTree = (buff: ArrayBuffer): BSPNode => {
+
+  const arr: Float32Array = new Float32Array(buff, 0,
+    buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
+
+  return numberArray2BSPTree(Array.from(arr));
+}
+
 /**
  * Algorithm adapted from Binary Space Partioning Trees and Polygon Removal in Real Time 3D Rendering
  * Samuel Ranta-Eskola, 2001
@@ -157,22 +264,16 @@ export default class BSPNode {
       } else {
         this.divider = bestDivider.clone();
         this.triangles = [];
-        this.addTriangles(triangles);
+        this.addTrianglesIterative(triangles);
       }
     } else {
-      this.addTriangles(triangles);
+      this.addTrianglesIterative(triangles);
     }
   }
 
-  public toArrayBuffer(): ArrayBuffer {
-    const arr = this.toNumberArray();
-    return Float32Array.from(arr).buffer;
-  };
-
   public toNumberArray(): number[] {
 
-    debugger;
-    const arr = [];
+    const arr: number[] = [];
     // fill with triangles
 
     // number of triangles
@@ -182,23 +283,23 @@ export default class BSPNode {
       arr.push(...triangle.toNumberArray());
     }
 
-    // fill with front triangles
-    // number of front and data
-    if (!this.front) arr.push(0);
-    else {
-      const frontArr: number[] = this.front.toNumberArray();
-      arr.push(frontArr.length);
-      arr.push(...frontArr);
-    }
+    // // fill with front triangles
+    // // number of front and data
+    // if (!this.front) arr.push(0);
+    // else {
+    //   const frontArr: number[] = this.front.toNumberArray();
+    //   arr.push(frontArr.length);
+    //   arr.push(...frontArr);
+    // }
 
-    // fill with back triangles
-    // number of back and data
-    if (!this.back) arr.push(0);
-    else {
-      const backArr: number[] = this.back.toNumberArray();
-      arr.push(backArr.length);
-      arr.push(...backArr);
-    }
+    // // fill with back triangles
+    // // number of back and data
+    // if (!this.back) arr.push(0);
+    // else {
+    //   const backArr: number[] = this.back.toNumberArray();
+    //   arr.push(backArr.length);
+    //   arr.push(...backArr);
+    // }
 
     //divider
     if (!this.divider) arr.push(0);
@@ -215,7 +316,7 @@ export default class BSPNode {
     return arr;
   }
 
-  public fromNumberArray(arr: number[]): void {
+  public fromNumberArray(arr: number[]): number {
     const trianglesLength = arr[0];
     const triangleOffset = 1;
 
@@ -227,32 +328,33 @@ export default class BSPNode {
       this.triangles.push(triangle)
     }
 
-    let frontOffset: number = triangleOffset + trianglesLength * 13;
-    const frontLength: number = arr[frontOffset];
-    frontOffset += 1;
-    if (frontLength > 0) {
-      const frontArray: number[] = arr.slice(frontOffset, frontOffset + frontLength);
-      if (this.front) this.front.fromNumberArray(frontArray);
-      else {
-        this.front = new BSPNode();
-        this.front.fromNumberArray(frontArray);
-      }
-    }
 
-    debugger;
-    let backOffset: number = frontOffset + frontLength;
-    const backLength: number = arr[backOffset];
-    backOffset += 1;
-    if (backLength > 0) {
-      const backArray: number[] = arr.slice(backOffset, backOffset + backLength);
-      if (this.back) this.back.fromNumberArray(backArray);
-      else {
-        this.back = new BSPNode();
-        this.back.fromNumberArray(backArray);
-      }
-    }
+    // let frontOffset: number = triangleOffset + trianglesLength * 13;
+    // const frontLength: number = arr[frontOffset];
+    // frontOffset += 1;
+    // if (frontLength > 0) {
+    //   const frontArray: number[] = arr.slice(frontOffset, frontOffset + frontLength);
+    //   if (this.front) this.front.fromNumberArray(frontArray);
+    //   else {
+    //     this.front = new BSPNode();
+    //     this.front.fromNumberArray(frontArray);
+    //   }
+    // }
 
-    let dividerOffset: number = backOffset + backLength;
+    // let backOffset: number = frontOffset + frontLength;
+    // const backLength: number = arr[backOffset];
+    // backOffset += 1;
+    // if (backLength > 0) {
+    //   const backArray: number[] = arr.slice(backOffset, backOffset + backLength);
+    //   if (this.back) this.back.fromNumberArray(backArray);
+    //   else {
+    //     this.back = new BSPNode();
+    //     this.back.fromNumberArray(backArray);
+    //   }
+    // }
+
+
+    let dividerOffset: number = triangleOffset + trianglesLength * 13;
     const dividerLength: number = arr[dividerOffset];
     dividerOffset += 1;
     if (dividerLength > 0) {
@@ -270,19 +372,61 @@ export default class BSPNode {
     const boundingBoxOffset = invertedIndex + 1;
     this.boundingBox.min.set(arr[boundingBoxOffset], arr[boundingBoxOffset + 1], arr[boundingBoxOffset + 2]);
     this.boundingBox.max.set(arr[boundingBoxOffset + 3], arr[boundingBoxOffset + 4], arr[boundingBoxOffset + 5]);
+
+    return boundingBoxOffset + 6;
   }
 
-  public fromArrayBuffer(buff: ArrayBuffer): void {
-    this.triangles = [];
-    const arr: Float32Array = new Float32Array(buff, 0,
-      buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
+  private addTrianglesIterative(triangles: Triangle[]) {
+    const heap: Array<{ triangles: Triangle[]; node: BSPNode }> = [];
+    let [frontTriangles, backTriangles] = this.addTriangles(triangles);
 
-    this.fromNumberArray(Array.from(arr));
+    if (backTriangles.length) {
+      if (!this.back) this.back = new BSPNode();
+      heap.push({
+        triangles: backTriangles,
+        node: this.back,
+      });
+    }
 
+    if (frontTriangles.length) {
+      if (!this.front) this.front = new BSPNode();
+      heap.push({
+        triangles: frontTriangles,
+        node: this.front,
+      });
+    }
 
+    while (heap.length > 0) {
+      const { triangles, node } = heap.pop() as {
+        triangles: Triangle[];
+        node: BSPNode;
+      };
+      [frontTriangles, backTriangles] = node.addTriangles(triangles);
+
+      if (backTriangles.length) {
+        if (!node.back) node.back = new BSPNode();
+        heap.push({
+          triangles: backTriangles,
+          node: node.back,
+        });
+      }
+
+      if (frontTriangles.length) {
+        if (!node.front) node.front = new BSPNode();
+        heap.push({
+          triangles: frontTriangles,
+          node: node.front,
+        });
+      }
+    }
   }
 
   private addTriangles(triangles: Triangle[]) {
+    if (!this.divider) {
+      const bestTriangle = chooseDividingTriangle(triangles);
+      this.divider = bestTriangle ? bestTriangle.clone() : triangles[0];
+    }
+
     const frontTriangles = [];
     const backTriangles = [];
 
@@ -348,20 +492,7 @@ export default class BSPNode {
       }
     }
 
-    if (frontTriangles.length) {
-      if (this.front === undefined) {
-        this.front = new BSPNode(frontTriangles);
-      } else {
-        this.front.addTriangles(frontTriangles);
-      }
-    }
-    if (backTriangles.length) {
-      if (this.back === undefined) {
-        this.back = new BSPNode(backTriangles);
-      } else {
-        this.back.addTriangles(backTriangles);
-      }
-    }
+    return [frontTriangles, backTriangles];
   }
 
   invert() {
