@@ -5,7 +5,7 @@ import Triangle, {
   CLASSIFY_SPANNING,
 } from './Triangle';
 import { isConvexSet } from './utils';
-import { Box3, Face3, Geometry, Matrix4, Vector3 } from 'three';
+import { Box3, Face3, Geometry, BufferGeometry, Float32BufferAttribute, Matrix4, Vector3 } from 'three';
 
 const MINIMUM_RELATION = 0.8; // 0 -> 1
 const MINIMUM_RELATION_SCALE = 10; // should always be >2
@@ -506,6 +506,23 @@ export default class BSPNode {
       geometry.faces.push(face);
     }
 
+    return geometry;
+  }
+
+  toBufferGeometry(): BufferGeometry {
+    const geometry = new BufferGeometry();
+    const triangles = this.getTriangles();
+    const coords = [];
+    for (let i = 0; i < triangles.length; i++) {
+      const triangle = triangles[i];
+      coords.push(
+        triangle.a.x, triangle.a.y, triangle.a.z,
+        triangle.b.x, triangle.b.y, triangle.b.z,
+        triangle.c.x, triangle.c.y, triangle.c.z
+      );
+    }
+    // @types/three does not have setAttribute, so...
+    (geometry as any).setAttribute('position', new Float32BufferAttribute(coords, 3, false));
     return geometry;
   }
 }
