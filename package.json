@@ -2,7 +2,7 @@
   "name": "three-csg",
   "version": "1.0.0-alpha.1",
   "description": "Constructive Solid Geometry for Three.JS",
-  "main": "lib",
+  "main": "three-csg.js",
   "author": "Chandler Prall <chandler.prall@gmail.com>",
   "license": "Zlib",
   "repository": "https://github.com/chandlerprall/threecsg/",
