@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>threecsg | Constructive Solid Geometry for Three.js</title>
+        <link href="https://fonts.googleapis.com/css?family=Biryani:200" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="./styles.css"/>
+    </head>
+    <body>
+        <h1>threecsg</h1>
+        <p>
+            threecsg provides boolean modeling operations for <a href="https://threejs.org/" target="_blank">Three.js</a>
+            meshes and geometry. This creates new objects that are the union (addition), difference (subtraction), or
+            intersection (overlap) of two existing objects. Its API is designed to be just as simple as Three.js's mesh
+            creation, requiring no understanding of the underlying geometry or mesh object structure.
+        </p>
+
+        <h2>Top Level API</h2>
+        <p>
+            There are three main methods exported by the <code>threecsg</code> module which provide the boolean
+            operations for adding, subtracting, and intersecting meshes. These account for any translation, rotation,
+            and scaling on the source meshes and return a new mesh which is un-rotated and un-scaled, but is positioned
+            to keep the resulting geometry in the same location relative to the sources.
+        </p>
+
+        <h3>union</h3>
+        <div class="apiExample">
+            <code>
+                const material = new THREE.MeshNormalMaterial();
+                const box = new THREE.Mesh(new THREE.BoxGeometry());
+                const sphere = new THREE.Mesh(new THREE.SphereGeometry());
+                sphere.scale.set(0.7, 0.9, 0.7);
+
+                box.quaternion.set(0, 1, 0, 1).normalize();
+                box.position.set(-2, 0, 0);
+                sphere.position.set(-1.6, 0, 0);
+
+                const unionmesh1 = threecsg.union(box, sphere, material);
+                scene.add(unionmesh1);
+
+                box.position.set(2, -0.5, 0);
+                box.quaternion.set(0, 0, -0.5, 1).normalize();
+                sphere.position.set(2, 0.2, -0.4);
+                sphere.quaternion.set(1, 0, 1, 1).normalize();
+
+                const unionmesh3 = threecsg.union(sphere, box, material);
+                scene.add(unionmesh3);
+            </code>
+        </div>
+
+        <h3>subtract</h3>
+        <div class="apiExample">
+            <code>
+                const material = new THREE.MeshNormalMaterial();
+                const box = new THREE.Mesh(new THREE.BoxGeometry());
+                const sphere = new THREE.Mesh(new THREE.SphereGeometry());
+                sphere.scale.set(0.7, 0.9, 0.7);
+
+                box.quaternion.set(0, 1, 0, 1).normalize();
+                box.position.set(-2, 0, 0);
+                sphere.position.set(-1.6, 0, 0);
+
+                const subtractmesh1 = threecsg.subtract(box, sphere, material);
+                scene.add(subtractmesh1);
+
+                box.position.set(2, -0.5, 0);
+                box.quaternion.set(0, 0, -0.5, 1).normalize();
+                sphere.position.set(2, 0.2, -0.4);
+                sphere.quaternion.set(1, 0, 1, 1).normalize();
+
+                const subtractmesh3 = threecsg.subtract(sphere, box, material);
+                scene.add(subtractmesh3);
+            </code>
+        </div>
+
+        <h3>intersect</h3>
+        <div class="apiExample">
+            <code>
+                const material = new THREE.MeshNormalMaterial();
+                const box = new THREE.Mesh(new THREE.BoxGeometry());
+                const sphere = new THREE.Mesh(new THREE.SphereGeometry());
+
+                box.quaternion.set(0, 1, 0, 1).normalize();
+                box.position.set(-2, 0, 0);
+                sphere.position.set(-1.6, 0, 0);
+
+                const intersectmesh1 = threecsg.intersect(box, sphere, material);
+                scene.add(intersectmesh1);
+
+                box.position.set(2, -0.5, 0);
+                box.quaternion.set(0, 0, -0.5, 1).normalize();
+                sphere.position.set(2, 0.2, -0.4);
+                sphere.quaternion.set(1, 0, 1, 1).normalize();
+
+                const intersectmesh3 = threecsg.intersect(sphere, box, material);
+                scene.add(intersectmesh3);
+            </code>
+        </div>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.min.js"></script>
+        <script type="text/javascript" src="./three-csg.js"></script>
+        <script type="text/javascript">
+            const examples = Array.from(document.querySelectorAll('.apiExample'));
+			const wireMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+
+            examples.forEach((example, idx) => {
+                const result = document.createElement('div');
+                result.className = 'apiResult';
+                example.insertAdjacentElement('afterend', result);
+
+				const width = example.clientWidth;
+				const height = example.clientHeight;
+
+				const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 25);
+				camera.position.set(0, 0, 7);
+
+				const scene = new THREE.Scene();
+				const wireScene = new THREE.Scene();
+				wireScene.overrideMaterial = wireMaterial;
+
+            	const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+            	renderer.setClearColor(0x455262);
+            	renderer.setClearAlpha(1);
+            	renderer.setSize(width, height);
+				result.appendChild(renderer.domElement);
+
+            	const exampleFn = new Function(
+            		'scene',
+                    example.textContent
+                );
+            	exampleFn(scene);
+
+				renderer.render(scene, camera);
+            });
+        </script>
+    </body>
+</html>

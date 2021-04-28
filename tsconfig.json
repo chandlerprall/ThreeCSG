@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "lib",
+    "module": "es6",
+    "target": "es6",
+    "strict": true,
+    "declaration": true,
+    "declarationDir": "types"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts"]
+}

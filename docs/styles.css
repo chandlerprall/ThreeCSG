@@ -1,0 +1,67 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #354252;
+    font-family: 'Biryani', sans-serif;
+    color: #f7f7f7;
+}
+
+body {
+    margin: auto;
+    width: 1000px;
+    min-width: 600px;
+}
+
+h1 {
+    margin: 30px 0 0;
+    padding: 0;
+    font-size: 56px;
+    font-weight: normal;
+    text-align: center;
+    /*border-bottom: 1px solid #f7f7f7;*/
+}
+
+h2 {
+    font-size: 30px;
+    border-bottom: 1px solid #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+
+h3 {
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #f7f7f7;
+}
+
+.apiExample {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    width: 475px;
+    position: relative;
+}
+
+code {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: pre-line;
+}
+
+.apiResult {
+    vertical-align: top;
+    margin: 0;
+    margin-bottom: 50px;
+    padding: 0;
+    padding-left: 50px;
+    display: inline-block;
+    width: 475px;
+}
+
+.apiResult canvas {
+    box-shadow: 0px 0px 5px #596f8a;
+}
